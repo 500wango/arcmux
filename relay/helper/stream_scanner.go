@@ -10,12 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
+	"github.com/500wango/arcmux/logger"
+	relaycommon "github.com/500wango/arcmux/relay/common"
+	"github.com/500wango/arcmux/service"
+	"github.com/500wango/arcmux/setting/operation_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 

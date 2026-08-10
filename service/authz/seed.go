@@ -3,7 +3,7 @@ package authz
 import (
 	"fmt"
 
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

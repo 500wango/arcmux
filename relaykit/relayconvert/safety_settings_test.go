@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/relaykit/relayconvert/convmeta"
-	kitutil "github.com/QuantumNous/new-api/relaykit/relayconvert/kitutil"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/relaykit/relayconvert/convmeta"
+	kitutil "github.com/500wango/arcmux/relaykit/relayconvert/kitutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

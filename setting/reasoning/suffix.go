@@ -3,7 +3,7 @@
 // of the relaykit extraction. Host code keeps importing this path unchanged.
 package reasoning
 
-import kitreasoning "github.com/QuantumNous/new-api/relaykit/relayconvert/reasoning"
+import kitreasoning "github.com/500wango/arcmux/relaykit/relayconvert/reasoning"
 
 var (
 	EffortSuffixes           = kitreasoning.EffortSuffixes

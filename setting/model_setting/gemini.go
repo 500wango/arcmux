@@ -3,8 +3,8 @@ package model_setting
 import (
 	"fmt"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting/config"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/setting/config"
 )
 
 const defaultGeminiSafetySetting = "OFF"

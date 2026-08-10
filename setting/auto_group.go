@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	"github.com/QuantumNous/new-api/common"
+	"github.com/500wango/arcmux/common"
 )
 
 const DefaultMaxTokenAutoGroups = 5

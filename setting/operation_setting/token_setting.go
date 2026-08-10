@@ -1,6 +1,6 @@
 package operation_setting
 
-import "github.com/QuantumNous/new-api/setting/config"
+import "github.com/500wango/arcmux/setting/config"
 
 // TokenSetting 令牌相关配置
 type TokenSetting struct {

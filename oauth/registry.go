@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/model"
 )
 
 var (

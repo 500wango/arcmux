@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 ArcMux contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -13,8 +13,6 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-For commercial licensing, please contact support@quantumnous.com
 */
 export type AuthSessionSyncEvent = {
   kind: 'authenticated' | 'signed_out'
@@ -24,8 +22,8 @@ export type AuthSessionSyncEvent = {
   timestamp: number
 }
 
-const AUTH_SYNC_CHANNEL = 'new-api:auth-session'
-const AUTH_SYNC_STORAGE_KEY = 'new-api:auth-session:event'
+const AUTH_SYNC_CHANNEL = 'arcmux:auth-session'
+const AUTH_SYNC_STORAGE_KEY = 'arcmux:auth-session:event'
 
 function randomIdentifier(): string {
   if (typeof globalThis.crypto?.randomUUID === 'function') {

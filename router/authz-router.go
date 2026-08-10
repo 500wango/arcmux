@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/QuantumNous/new-api/controller"
-	"github.com/QuantumNous/new-api/middleware"
+	"github.com/500wango/arcmux/controller"
+	"github.com/500wango/arcmux/middleware"
 
 	"github.com/gin-gonic/gin"
 )

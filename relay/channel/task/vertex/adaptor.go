@@ -9,19 +9,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/model"
 	"github.com/gin-gonic/gin"
 
-	"github.com/QuantumNous/new-api/constant"
-	taskdto "github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/relay/channel"
-	geminitask "github.com/QuantumNous/new-api/relay/channel/task/gemini"
-	taskcommon "github.com/QuantumNous/new-api/relay/channel/task/taskcommon"
-	vertexcore "github.com/QuantumNous/new-api/relay/channel/vertex"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/service"
+	"github.com/500wango/arcmux/constant"
+	taskdto "github.com/500wango/arcmux/dto"
+	"github.com/500wango/arcmux/relay/channel"
+	geminitask "github.com/500wango/arcmux/relay/channel/task/gemini"
+	taskcommon "github.com/500wango/arcmux/relay/channel/task/taskcommon"
+	vertexcore "github.com/500wango/arcmux/relay/channel/vertex"
+	relaycommon "github.com/500wango/arcmux/relay/common"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/service"
 )
 
 // ============================

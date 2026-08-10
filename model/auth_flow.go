@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
+	"github.com/500wango/arcmux/common"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

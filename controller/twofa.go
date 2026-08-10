@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/middleware"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/middleware"
+	"github.com/500wango/arcmux/model"
+	"github.com/500wango/arcmux/service"
 
 	"github.com/gin-gonic/gin"
 )

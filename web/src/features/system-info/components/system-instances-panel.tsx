@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 ArcMux contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -13,8 +13,6 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-For commercial licensing, please contact support@quantumnous.com
 */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -329,7 +327,7 @@ function SystemInstancesList(props: SystemInstancesTableProps) {
                                     {t('Example')}
                                   </div>
                                   <code className='bg-muted block rounded-md px-2 py-1.5 font-mono text-[11px] break-all'>
-                                    NODE_NAME=new-api-master-1
+                                    NODE_NAME=arcmux-master-1
                                   </code>
                                 </div>
                                 <p className='text-muted-foreground'>

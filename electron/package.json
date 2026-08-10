@@ -1,5 +1,5 @@
 {
-  "name": "new-api-electron",
+  "name": "arcmux-electron",
   "version": "1.0.0",
   "description": "ArcMux - AI Model Gateway Desktop Application",
   "main": "main.js",
@@ -18,10 +18,10 @@
     "openai",
     "claude"
   ],
-  "author": "QuantumNous",
+  "author": "ArcMux contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/QuantumNous/new-api"
+    "url": "https://github.com/500wango/arcmux"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
@@ -29,7 +29,7 @@
     "electron-builder": "^26.7.0"
   },
   "build": {
-    "appId": "com.newapi.desktop",
+    "appId": "com.arcmux.desktop",
     "productName": "ArcMux",
     "publish": null,
     "directories": {

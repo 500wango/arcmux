@@ -3,7 +3,7 @@ package service
 import (
 	"time"
 
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/model"
 )
 
 // ---------------------------------------------------------------------------

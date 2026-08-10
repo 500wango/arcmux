@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/QuantumNous/new-api/common"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/relay/helper"
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/relaykit/types"
-	"github.com/QuantumNous/new-api/service"
+	"github.com/500wango/arcmux/common"
+	relaycommon "github.com/500wango/arcmux/relay/common"
+	"github.com/500wango/arcmux/relay/helper"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/relaykit/types"
+	"github.com/500wango/arcmux/service"
 
 	"github.com/gin-gonic/gin"
 )

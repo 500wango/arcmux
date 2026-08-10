@@ -1,7 +1,7 @@
 # Security Policy
 
 > [!IMPORTANT]
-> **Bulk Reporting Policy:** If you need to submit multiple vulnerability reports in bulk, **you must contact us first** ([support@quantumnous.com](mailto:support@quantumnous.com)) to coordinate the submission process. Uncoordinated bulk submissions have caused significant disruption to our team, and we will take the following actions:
+> **Bulk Reporting Policy:** If you need to submit multiple vulnerability reports in bulk, please coordinate via GitHub Security Advisories. Uncoordinated bulk submissions have caused significant disruption to our team, and we will take the following actions:
 >
 > 1. **All uncoordinated bulk reports will be closed without review.**
 > 2. **Repeated offenders may be blocked** from further submissions.
@@ -29,12 +29,7 @@ We take security vulnerability reports very seriously. If you discover a securit
 
 **Do NOT** report security vulnerabilities in public GitHub Issues.
 
-To report a security issue, please use the GitHub Security Advisories tab to "[Open a draft security advisory](https://github.com/QuantumNous/new-api/security/advisories/new)". This is the preferred method as it provides a built-in private communication channel.
-
-Alternatively, you can report via email:
-
-- **Email:** [support@quantumnous.com](mailto:support@quantumnous.com)
-- **Subject:** `[SECURITY] Security Vulnerability Report`
+To report a security issue, please use the GitHub Security Advisories tab to "[Open a draft security advisory](https://github.com/500wango/arcmux/security/advisories/new)". This is the preferred method as it provides a built-in private communication channel.
 
 ### What to Include
 

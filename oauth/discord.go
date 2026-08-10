@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/500wango/arcmux/i18n"
+	"github.com/500wango/arcmux/logger"
+	"github.com/500wango/arcmux/model"
+	"github.com/500wango/arcmux/setting/system_setting"
 	"github.com/gin-gonic/gin"
 )
 

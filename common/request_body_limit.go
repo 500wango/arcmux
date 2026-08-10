@@ -1,6 +1,6 @@
 package common
 
-import "github.com/QuantumNous/new-api/constant"
+import "github.com/500wango/arcmux/constant"
 
 const defaultAnonymousRequestBodyLimitKB = 512
 

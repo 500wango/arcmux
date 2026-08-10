@@ -8,14 +8,14 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/relay/channel"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/relaykit/relayconvert"
-	"github.com/QuantumNous/new-api/relaykit/types"
-	"github.com/QuantumNous/new-api/setting/model_setting"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
+	"github.com/500wango/arcmux/relay/channel"
+	relaycommon "github.com/500wango/arcmux/relay/common"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/relaykit/relayconvert"
+	"github.com/500wango/arcmux/relaykit/types"
+	"github.com/500wango/arcmux/setting/model_setting"
 
 	"github.com/gin-gonic/gin"
 )

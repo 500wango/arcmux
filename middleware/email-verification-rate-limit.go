@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/QuantumNous/new-api/common"
+	"github.com/500wango/arcmux/common"
 
 	"github.com/gin-gonic/gin"
 )

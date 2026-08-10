@@ -16,10 +16,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
+	"github.com/500wango/arcmux/logger"
+	"github.com/500wango/arcmux/model"
 
 	"github.com/google/uuid"
 )

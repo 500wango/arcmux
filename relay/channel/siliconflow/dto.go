@@ -1,6 +1,6 @@
 package siliconflow
 
-import "github.com/QuantumNous/new-api/relaykit/dto"
+import "github.com/500wango/arcmux/relaykit/dto"
 
 type SFTokens struct {
 	InputTokens  int `json:"input_tokens"`

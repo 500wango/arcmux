@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/relaykit/dto"
+	"github.com/500wango/arcmux/relaykit/dto"
 )
 
 const (

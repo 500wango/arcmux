@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
 	"github.com/stretchr/testify/require"
 )
 

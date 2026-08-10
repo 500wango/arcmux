@@ -9,9 +9,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/QuantumNous/new-api/constant"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
+	"github.com/500wango/arcmux/constant"
+	relaycommon "github.com/500wango/arcmux/relay/common"
+	relayconstant "github.com/500wango/arcmux/relay/constant"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

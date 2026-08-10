@@ -8,9 +8,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/relaykit/dto"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/logger"
+	"github.com/500wango/arcmux/relaykit/dto"
 )
 
 // shardedRoundTripper fans requests for each origin across N independent

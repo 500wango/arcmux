@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/QuantumNous/new-api/relaykit/types"
+import "github.com/500wango/arcmux/relaykit/types"
 
 // 这里不好动就不动了，本来想独立出来的（
 type OpenAIModels struct {

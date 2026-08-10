@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/logger"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/setting/system_setting"
 
 	"golang.org/x/net/proxy"
 )

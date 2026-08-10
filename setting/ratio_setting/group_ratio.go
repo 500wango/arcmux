@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting/config"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/setting/config"
+	"github.com/500wango/arcmux/types"
 )
 
 var defaultGroupRatio = map[string]float64{

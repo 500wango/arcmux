@@ -1,12 +1,12 @@
 package relayconvert
 
 import (
-	"github.com/QuantumNous/new-api/relaykit/dto"
-	"github.com/QuantumNous/new-api/relaykit/relayconvert/convmeta"
-	claudemessages "github.com/QuantumNous/new-api/relaykit/relayconvert/internal/claude_messages"
-	geminichat "github.com/QuantumNous/new-api/relaykit/relayconvert/internal/gemini_chat"
-	oaichat "github.com/QuantumNous/new-api/relaykit/relayconvert/internal/oai_chat"
-	oairesponses "github.com/QuantumNous/new-api/relaykit/relayconvert/internal/oai_responses"
+	"github.com/500wango/arcmux/relaykit/dto"
+	"github.com/500wango/arcmux/relaykit/relayconvert/convmeta"
+	claudemessages "github.com/500wango/arcmux/relaykit/relayconvert/internal/claude_messages"
+	geminichat "github.com/500wango/arcmux/relaykit/relayconvert/internal/gemini_chat"
+	oaichat "github.com/500wango/arcmux/relaykit/relayconvert/internal/oai_chat"
+	oairesponses "github.com/500wango/arcmux/relaykit/relayconvert/internal/oai_responses"
 )
 
 type ClaudeResponseInfo = claudemessages.ClaudeResponseInfo

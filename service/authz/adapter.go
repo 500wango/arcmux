@@ -3,7 +3,7 @@ package authz
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/model"
+	"github.com/500wango/arcmux/model"
 	casbinmodel "github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 	"gorm.io/gorm"

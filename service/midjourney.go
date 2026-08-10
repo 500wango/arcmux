@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/setting"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
+	"github.com/500wango/arcmux/dto"
+	"github.com/500wango/arcmux/logger"
+	relayconstant "github.com/500wango/arcmux/relay/constant"
+	"github.com/500wango/arcmux/setting"
 
 	"github.com/gin-gonic/gin"
 )

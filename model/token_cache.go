@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
+	"github.com/500wango/arcmux/common"
+	"github.com/500wango/arcmux/constant"
 )
 
 func cacheSetToken(token Token) error {
