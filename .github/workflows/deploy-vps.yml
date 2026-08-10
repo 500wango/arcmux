@@ -1,0 +1,50 @@
+name: Auto Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'docs/**'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/pr-check.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH || '/opt/arcmux' }}"
+            echo "==> Navigating to deploy directory: $DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+
+            echo "==> Pulling latest changes from main branch..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Building and restarting ArcMux production containers..."
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+
+            echo "==> Verifying API health status..."
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:3000/api/status 2>/dev/null | grep -q '"success"[[:space:]]*:[[:space:]]*true'; then
+                echo "==> 🎉 ArcMux deployed and healthy!"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "==> ⚠️ Healthcheck still initializing, check logs with 'arcmux logs'"
