@@ -1,0 +1,18 @@
+# File path: /etc/systemd/system/arcmux.service
+# sudo systemctl daemon-reload
+# sudo systemctl start arcmux
+# sudo systemctl enable arcmux
+# sudo systemctl status arcmux
+[Unit]
+Description=ArcMux AI Gateway Service
+After=network.target
+
+[Service]
+User=ubuntu  # 注意修改用户名
+WorkingDirectory=/path/to/arcmux  # 注意修改路径
+ExecStart=/path/to/arcmux/arcmux --port 3000 --log-dir /path/to/arcmux/logs  # 注意修改路径和端口号
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

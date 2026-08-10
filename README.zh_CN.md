@@ -88,18 +88,32 @@
 
 ## 🚀 快速开始
 
-### 使用 Docker Compose（推荐）
+### VPS 一键部署（推荐）
+
+在任何崭新的 Linux VPS（Ubuntu / Debian / CentOS / Alpine 等）上执行单行命令，脚本会自动安装 Docker、配置独立密钥并启动 ArcMux 全套服务（PostgreSQL 15 + Redis 7 + ArcMux Gateway）：
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/500wango/arcmux/main/scripts/install.sh)
+```
+
+部署完成后，使用 `arcmux` 命令行工具即可随时管理服务：
+```bash
+arcmux status    # 查看运行状态
+arcmux logs      # 查看实时日志
+arcmux restart   # 重启服务
+arcmux update    # 拉取最新代码并升级
+arcmux info      # 查看访问地址与端口
+```
+
+### 使用 Docker Compose 部署
 
 ```bash
 # 克隆项目
 git clone https://github.com/500wango/arcmux.git
 cd arcmux
 
-# 编辑 docker-compose.yml 配置
-nano docker-compose.yml
-
-# 启动服务
-docker-compose up -d
+# 执行部署脚本（自动生成高强度安全密钥与 .env.prod）
+./scripts/deploy-docker.sh
 ```
 
 <details>

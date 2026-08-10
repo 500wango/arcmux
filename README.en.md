@@ -87,18 +87,32 @@
 
 ## 🚀 Quick Start
 
-### Using Docker Compose (Recommended)
+### VPS One-Click Deployment (Recommended)
+
+Run a single command on any fresh Linux VPS (Ubuntu / Debian / CentOS / Alpine / Fedora) to automatically install Docker, generate secure credentials, and boot the complete ArcMux stack (PostgreSQL 15 + Redis 7 + ArcMux Gateway):
 
 ```bash
-# Clone the project
+bash <(curl -fsSL https://raw.githubusercontent.com/500wango/arcmux/main/scripts/install.sh)
+```
+
+Manage your service anytime with the global `arcmux` CLI:
+```bash
+arcmux status    # View container status and health
+arcmux logs      # Follow real-time logs
+arcmux restart   # Restart stack
+arcmux update    # Pull latest updates and upgrade
+arcmux info      # Show access URL and port
+```
+
+### Using Docker Compose
+
+```bash
+# Clone the repository
 git clone https://github.com/500wango/arcmux.git
 cd arcmux
 
-# Edit docker-compose.yml configuration
-nano docker-compose.yml
-
-# Start the service
-docker-compose up -d
+# Run deploy script (auto-generates randomized secrets and .env.prod)
+./scripts/deploy-docker.sh
 ```
 
 <details>
