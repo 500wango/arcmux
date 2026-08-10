@@ -37,48 +37,61 @@ export function CTA(props: CTAProps) {
 
   return (
     <section className='relative z-10 overflow-hidden px-6 py-24 md:py-32'>
-      {/* Gradient mesh background */}
+      {/* Ambient background aura */}
       <div
         aria-hidden
-        className='absolute inset-0 -z-10 opacity-20 dark:opacity-[0.08]'
+        className='pointer-events-none absolute inset-0 -z-10 opacity-20 dark:opacity-15'
         style={{
           background: [
-            'radial-gradient(ellipse 50% 50% at 30% 50%, oklch(0.7 0.15 250 / 70%) 0%, transparent 70%)',
-            'radial-gradient(ellipse 40% 40% at 70% 40%, oklch(0.65 0.12 200 / 50%) 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 60% at 50% 50%, color-mix(in oklch, var(--primary) 40%, transparent) 0%, transparent 70%)',
+            'radial-gradient(ellipse 40% 40% at 75% 60%, color-mix(in oklch, var(--chart-2) 30%, transparent) 0%, transparent 70%)',
           ].join(', '),
         }}
       />
 
-      <AnimateInView
-        className='mx-auto max-w-2xl text-center'
-        animation='scale-in'
-      >
-        <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-4xl'>
-          {t('Ready to simplify')}
-          <br />
-          <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-            {t('your AI integration?')}
-          </span>
-        </h2>
-        <p className='text-muted-foreground/80 mx-auto mt-5 max-w-md text-sm leading-relaxed md:text-base'>
-          {t(
-            'Deploy your own gateway and start routing requests through your configured upstream services.'
-          )}
-        </p>
-        <div className='mt-8 flex items-center justify-center gap-3'>
-          <Button className='group rounded-lg' render={<Link to='/sign-up' />}>
-            {t('Get Started')}
-            <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
-          </Button>
-          <Button
-            variant='outline'
-            className='border-border/50 hover:border-border hover:bg-muted/50 rounded-lg'
-            render={<Link to='/pricing' />}
-          >
-            {t('View Pricing')}
-          </Button>
-        </div>
-      </AnimateInView>
+      <div className='mx-auto max-w-6xl'>
+        <AnimateInView
+          className='tech-glass-card relative overflow-hidden rounded-3xl p-10 text-center shadow-2xl md:p-16'
+          animation='scale-in'
+        >
+          {/* Decorative ambient radial glow inside card */}
+          <div
+            aria-hidden
+            className='pointer-events-none absolute -top-24 -right-24 size-96 rounded-full opacity-30 blur-3xl'
+            style={{
+              background:
+                'radial-gradient(circle, color-mix(in oklch, var(--primary) 70%, transparent) 0%, transparent 70%)',
+            }}
+          />
+
+          <h2 className='relative text-3xl leading-tight font-extrabold tracking-tight md:text-5xl'>
+            {t('Ready to unify')}
+            <br />
+            <span className='bg-gradient-to-r from-primary via-amber-500 to-yellow-500 bg-clip-text text-transparent drop-shadow-xs'>
+              {t('your AI stack?')}
+            </span>
+          </h2>
+          <p className='text-muted-foreground relative mx-auto mt-6 max-w-md text-base leading-relaxed'>
+            {t('Spin up your own gateway and route every AI request through a single control plane.')}
+          </p>
+          <div className='relative mt-10 flex items-center justify-center gap-4'>
+            <Button
+              className='group h-11 rounded-xl px-6 font-semibold shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/25'
+              render={<Link to='/sign-up' />}
+            >
+              {t('Get Started')}
+              <ArrowRight className='ml-1.5 size-4 transition-transform duration-200 group-hover:translate-x-1' />
+            </Button>
+            <Button
+              variant='outline'
+              className='h-11 rounded-xl border-border/60 bg-background/60 px-6 font-medium backdrop-blur-md transition-all duration-200 hover:border-border hover:bg-muted/60'
+              render={<Link to='/pricing' />}
+            >
+              {t('View Pricing')}
+            </Button>
+          </div>
+        </AnimateInView>
+      </div>
     </section>
   )
 }

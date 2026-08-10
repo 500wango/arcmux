@@ -27,6 +27,7 @@ import {
   ClipboardPaste,
   HelpCircle,
   KeyRound,
+  LogIn,
   Loader2,
   Server,
   Sparkles,
@@ -81,6 +82,8 @@ import {
 } from '@/components/ui/form'
 import { IconBadge, type IconBadgeTone } from '@/components/ui/icon-badge'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -139,6 +142,10 @@ import {
 import {
   ADD_MODE_OPTIONS,
   CHANNEL_STATUS_LABELS,
+  CHANNEL_TYPE_ANTHROPIC,
+  CHANNEL_TYPE_CODEX,
+  CHANNEL_TYPE_OPENAI,
+  CHANNEL_TYPE_VERTEX_AI,
   CHANNEL_TYPE_OPTIONS,
   CHANNEL_TYPE_WARNINGS,
   ERROR_MESSAGES,
@@ -166,6 +173,7 @@ import {
   findMissingModelsInMapping,
   validateModelMappingJson,
   hasAdvancedSettingsErrors,
+  supportsUpstreamOAuth,
 } from '../../lib'
 import {
   collectInvalidStatusCodeEntries,
@@ -179,6 +187,7 @@ import {
   MissingModelsConfirmationDialog,
   type MissingModelsAction,
 } from '../dialogs/missing-models-confirmation-dialog'
+import { OAuthCredentialsDialog } from '../dialogs/oauth-credentials-dialog'
 import { ParamOverrideEditorDialog } from '../dialogs/param-override-editor-dialog'
 import { StatusCodeRiskDialog } from '../dialogs/status-code-risk-dialog'
 import { ModelMappingEditor } from '../model-mapping-editor'
@@ -205,6 +214,11 @@ type ModelMappingGuardrail = {
 }
 
 type ChannelEditorSectionStatus = 'complete' | 'configured' | 'error' | 'idle'
+
+type OAuthTarget = {
+  id: number
+  type: number
+}
 
 type ChannelEditorNavChildItem = {
   id: string
@@ -619,6 +633,9 @@ export function ChannelMutateDrawer({
   )
   const canRevealChannelKey = currentUser?.role === ROLE.SUPER_ADMIN
   const [fetchModelsDialogOpen, setFetchModelsDialogOpen] = useState(false)
+  const [oauthCredentialsDialogOpen, setOAuthCredentialsDialogOpen] =
+    useState(false)
+  const [oauthTarget, setOAuthTarget] = useState<OAuthTarget | null>(null)
   const [channelKey, setChannelKey] = useState<string | null>(null)
   const [isChannelKeyLoading, setIsChannelKeyLoading] = useState(false)
   const [isCodexCredentialRefreshing, setIsCodexCredentialRefreshing] =
@@ -720,6 +737,8 @@ export function ChannelMutateDrawer({
   const keyMode = form.watch('key_mode')
   const currentGroups = form.watch('group')
   const currentType = form.watch('type')
+  const authMode = form.watch('auth_mode')
+  const supportsOAuthAuthentication = supportsUpstreamOAuth(currentType)
   const currentStatus = form.watch('status')
   const currentBaseUrl = form.watch('base_url')
   const currentKey = form.watch('key')
@@ -851,10 +870,12 @@ export function ChannelMutateDrawer({
 
   // Helper computed values
   const isBatchMode =
-    multiKeyMode === 'batch' || multiKeyMode === 'multi_to_single'
+    authMode !== 'oauth' &&
+    (multiKeyMode === 'batch' || multiKeyMode === 'multi_to_single')
   const isChannelDetailLoading = isEditing && isChannelLoading
   const supportsMultiKeyAddMode =
-    currentType !== 57 && !(currentType === 41 && vertexKeyType === 'api_key')
+    currentType !== CHANNEL_TYPE_CODEX &&
+    !(currentType === CHANNEL_TYPE_VERTEX_AI && vertexKeyType === 'api_key')
   const addModeOptions = useMemo(
     () =>
       supportsMultiKeyAddMode
@@ -1026,7 +1047,10 @@ export function ChannelMutateDrawer({
     (currentHttp2ConnectionShards != null && currentHttp2ConnectionShards > 1)
   )
   let fieldPassthroughConfigured = false
-  if (currentType === 1 || currentType === 57) {
+  if (
+    currentType === CHANNEL_TYPE_OPENAI ||
+    currentType === CHANNEL_TYPE_CODEX
+  ) {
     fieldPassthroughConfigured = Boolean(
       currentAllowServiceTier ||
       currentDisableStore ||
@@ -1077,7 +1101,11 @@ export function ChannelMutateDrawer({
       configured: extraSettingsConfigured,
     },
   ]
-  if (currentType === 1 || currentType === 14 || currentType === 57) {
+  if (
+    currentType === CHANNEL_TYPE_OPENAI ||
+    currentType === CHANNEL_TYPE_ANTHROPIC ||
+    currentType === CHANNEL_TYPE_CODEX
+  ) {
     advancedNavChildren.push({
       id: ADVANCED_SETTINGS_SECTION_IDS.fieldPassthrough,
       title: t('Field passthrough controls'),
@@ -1306,6 +1334,23 @@ export function ChannelMutateDrawer({
     }
   }, [form, isEditing, multiKeyMode, supportsMultiKeyAddMode])
 
+  useEffect(() => {
+    if (isEditing) return
+    if (!supportsOAuthAuthentication && authMode !== 'api_key') {
+      form.setValue('auth_mode', 'api_key', {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+      return
+    }
+    if (authMode === 'oauth' && multiKeyMode !== 'single') {
+      form.setValue('multi_key_mode', 'single', {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }, [authMode, form, isEditing, multiKeyMode, supportsOAuthAuthentication])
+
   // Validate base_url - warn if it ends with /v1
   useEffect(() => {
     if (!currentBaseUrl || !currentBaseUrl.endsWith('/v1')) return
@@ -1314,7 +1359,7 @@ export function ChannelMutateDrawer({
     const timer = setTimeout(() => {
       toast.warning(
         t(
-          'Warning: Base URL should not end with /v1. New API will handle it automatically. This may cause request failures.'
+          'Warning: Base URL should not end with /v1. ArcMux will handle it automatically. This may cause request failures.'
         ),
         { duration: 5000 }
       )
@@ -1548,16 +1593,30 @@ export function ChannelMutateDrawer({
   )
 
   // Handle successful submission
-  const handleSuccess = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: channelsQueryKeys.lists() })
-    if (channelId) {
-      queryClient.invalidateQueries({
-        queryKey: channelsQueryKeys.detail(channelId),
-      })
-    }
-    onOpenChange(false)
-    setOpen(null)
-  }, [channelId, queryClient, onOpenChange, setOpen])
+  const handleSuccess = useCallback(
+    (createdChannelId?: number) => {
+      queryClient.invalidateQueries({ queryKey: channelsQueryKeys.lists() })
+      if (channelId) {
+        queryClient.invalidateQueries({
+          queryKey: channelsQueryKeys.detail(channelId),
+        })
+      }
+
+      const shouldStartOAuth =
+        !isEditing && form.getValues('auth_mode') === 'oauth'
+      if (shouldStartOAuth && createdChannelId) {
+        setOAuthTarget({
+          id: createdChannelId,
+          type: form.getValues('type'),
+        })
+        setOAuthCredentialsDialogOpen(true)
+      }
+
+      onOpenChange(false)
+      setOpen(null)
+    },
+    [channelId, form, isEditing, queryClient, onOpenChange, setOpen]
+  )
 
   // Show missing models confirmation dialog
   const confirmMissingModelMappings = useCallback(
@@ -1619,12 +1678,29 @@ export function ChannelMutateDrawer({
   })
 
   const isSubmitting = channelMutation.isPending
+  let submitButtonLabel = t('Save changes')
+  if (isEditing) {
+    submitButtonLabel = t('Update Channel')
+  } else if (authMode === 'oauth') {
+    submitButtonLabel = t('Create and authorize')
+  }
 
   // Submit handler
   const onSubmit = useCallback(
     async (data: ChannelFormValues) => {
-      // Validate key is required when creating
-      if (!isEditing && !data.key?.trim()) {
+      if (
+        !isEditing &&
+        data.auth_mode === 'oauth' &&
+        !supportsUpstreamOAuth(data.type)
+      ) {
+        form.setError('auth_mode', {
+          type: 'manual',
+          message: t('OAuth is not supported for this channel type.'),
+        })
+        return
+      }
+
+      if (!isEditing && data.auth_mode === 'api_key' && !data.key?.trim()) {
         form.setError('key', {
           type: 'manual',
           message: ERROR_MESSAGES.REQUIRED_KEY,
@@ -2784,7 +2860,7 @@ export function ChannelMutateDrawer({
                                     </FormControl>
                                     <FormDescription>
                                       {t(
-                                        'Custom API base URL. For official channels, New API has built-in addresses. Only fill this for third-party proxy sites or special endpoints. Do not add /v1 or trailing slash.'
+                                        'Custom API base URL. For official channels, ArcMux has built-in addresses. Only fill this for third-party proxy sites or special endpoints. Do not add /v1 or trailing slash.'
                                       )}
                                     </FormDescription>
                                     <FormMessage />
@@ -2866,7 +2942,123 @@ export function ChannelMutateDrawer({
                             )}
 
                             <ChannelAuthSection>
-                              {!isEditing && (
+                              {isEditing &&
+                                currentRow &&
+                                supportsOAuthAuthentication && (
+                                  <div className='flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between'>
+                                    <div className='space-y-0.5'>
+                                      <p className='text-sm font-medium'>
+                                        {t('Upstream OAuth accounts')}
+                                      </p>
+                                      <p className='text-muted-foreground text-xs'>
+                                        {t(
+                                          'Connect and rotate multiple OAuth accounts without changing the API key configuration.'
+                                        )}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={() => {
+                                        setOAuthTarget({
+                                          id: currentRow.id,
+                                          type: currentRow.type,
+                                        })
+                                        setOAuthCredentialsDialogOpen(true)
+                                      }}
+                                    >
+                                      <KeyRound
+                                        className='h-4 w-4'
+                                        aria-hidden='true'
+                                      />
+                                      {t('Manage OAuth accounts')}
+                                    </Button>
+                                  </div>
+                                )}
+                              {!isEditing && supportsOAuthAuthentication && (
+                                <FormField
+                                  control={form.control}
+                                  name='auth_mode'
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>
+                                        {t('Authentication method')}
+                                      </FormLabel>
+                                      <FormControl>
+                                        <RadioGroup
+                                          value={field.value}
+                                          onValueChange={field.onChange}
+                                          className='grid gap-3 sm:grid-cols-2'
+                                        >
+                                          <Label
+                                            htmlFor='channel-auth-api-key'
+                                            className='has-data-[checked]:border-primary has-data-[checked]:ring-primary/20 hover:border-primary/40 flex cursor-pointer items-start gap-3 rounded-md border p-4 font-normal transition-colors has-data-[checked]:ring-2'
+                                          >
+                                            <RadioGroupItem
+                                              id='channel-auth-api-key'
+                                              value='api_key'
+                                              className='mt-0.5'
+                                            />
+                                            <KeyRound
+                                              className='text-muted-foreground mt-0.5 size-4 shrink-0'
+                                              aria-hidden='true'
+                                            />
+                                            <span className='space-y-1'>
+                                              <span className='block text-sm font-medium'>
+                                                {t('API Key')}
+                                              </span>
+                                              <span className='text-muted-foreground block text-xs'>
+                                                {t(
+                                                  'Connect with a provider API key.'
+                                                )}
+                                              </span>
+                                            </span>
+                                          </Label>
+                                          <Label
+                                            htmlFor='channel-auth-oauth'
+                                            className='has-data-[checked]:border-primary has-data-[checked]:ring-primary/20 hover:border-primary/40 flex cursor-pointer items-start gap-3 rounded-md border p-4 font-normal transition-colors has-data-[checked]:ring-2'
+                                          >
+                                            <RadioGroupItem
+                                              id='channel-auth-oauth'
+                                              value='oauth'
+                                              className='mt-0.5'
+                                            />
+                                            <LogIn
+                                              className='text-muted-foreground mt-0.5 size-4 shrink-0'
+                                              aria-hidden='true'
+                                            />
+                                            <span className='space-y-1'>
+                                              <span className='block text-sm font-medium'>
+                                                {t('OAuth')}
+                                              </span>
+                                              <span className='text-muted-foreground block text-xs'>
+                                                {t(
+                                                  'Sign in to one or more provider accounts.'
+                                                )}
+                                              </span>
+                                            </span>
+                                          </Label>
+                                        </RadioGroup>
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+
+                              {!isEditing && authMode === 'oauth' && (
+                                <Alert>
+                                  <LogIn className='size-4' />
+                                  <AlertDescription>
+                                    {t(
+                                      'OAuth authorization will open after the channel is saved. You can connect multiple accounts for this provider.'
+                                    )}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+
+                              {!isEditing && authMode === 'api_key' && (
                                 <FormField
                                   control={form.control}
                                   name='multi_key_mode'
@@ -2912,212 +3104,217 @@ export function ChannelMutateDrawer({
                                 />
                               )}
 
-                              <FormField
-                                control={form.control}
-                                name='key'
-                                render={({ field }) => {
-                                  let keyPlaceholder = t(
-                                    getKeyPromptForType(currentType)
-                                  )
-                                  if (isEditing) {
-                                    keyPlaceholder = t(
-                                      'Leave empty to keep existing key'
+                              {(isEditing || authMode === 'api_key') && (
+                                <FormField
+                                  control={form.control}
+                                  name='key'
+                                  render={({ field }) => {
+                                    let keyPlaceholder = t(
+                                      getKeyPromptForType(currentType)
                                     )
-                                  } else if (
-                                    currentType === 33 &&
-                                    awsKeyType === 'api_key' &&
-                                    isBatchMode
-                                  ) {
-                                    keyPlaceholder = t(
-                                      'Enter API Key, one per line, format: APIKey|Region'
-                                    )
-                                  } else if (
-                                    currentType === 33 &&
-                                    awsKeyType === 'api_key'
-                                  ) {
-                                    keyPlaceholder = t(
-                                      'Enter API Key, format: APIKey|Region'
-                                    )
-                                  } else if (
-                                    currentType === 33 &&
-                                    isBatchMode
-                                  ) {
-                                    keyPlaceholder = t(
-                                      'Enter key, one per line, format: AccessKey|SecretAccessKey|Region'
-                                    )
-                                  } else if (currentType === 33) {
-                                    keyPlaceholder = t(
-                                      'Enter key, format: AccessKey|SecretAccessKey|Region'
-                                    )
-                                  } else if (isBatchMode) {
-                                    keyPlaceholder = t(
-                                      'Enter one key per line for batch creation'
-                                    )
-                                  }
-
-                                  let keyDescription: ReactNode = t(
-                                    FIELD_DESCRIPTIONS.KEY
-                                  )
-                                  if (isEditing) {
-                                    let keyModeDescription = t(
-                                      'Append mode: New keys will be added to the end of the existing key list'
-                                    )
-                                    if (keyMode === 'replace') {
-                                      keyModeDescription = t(
-                                        'Replace mode: Will completely replace all existing keys'
+                                    if (isEditing) {
+                                      keyPlaceholder = t(
+                                        'Leave empty to keep existing key'
+                                      )
+                                    } else if (
+                                      currentType === 33 &&
+                                      awsKeyType === 'api_key' &&
+                                      isBatchMode
+                                    ) {
+                                      keyPlaceholder = t(
+                                        'Enter API Key, one per line, format: APIKey|Region'
+                                      )
+                                    } else if (
+                                      currentType === 33 &&
+                                      awsKeyType === 'api_key'
+                                    ) {
+                                      keyPlaceholder = t(
+                                        'Enter API Key, format: APIKey|Region'
+                                      )
+                                    } else if (
+                                      currentType === 33 &&
+                                      isBatchMode
+                                    ) {
+                                      keyPlaceholder = t(
+                                        'Enter key, one per line, format: AccessKey|SecretAccessKey|Region'
+                                      )
+                                    } else if (currentType === 33) {
+                                      keyPlaceholder = t(
+                                        'Enter key, format: AccessKey|SecretAccessKey|Region'
+                                      )
+                                    } else if (isBatchMode) {
+                                      keyPlaceholder = t(
+                                        'Enter one key per line for batch creation'
                                       )
                                     }
-                                    keyDescription = (
-                                      <>
-                                        {t(
-                                          'Enter new key to update, or leave empty to keep current key'
-                                        )}
-                                        {isMultiKeyChannel && (
-                                          <span className='text-warning mt-1 block'>
-                                            {keyModeDescription}
-                                          </span>
-                                        )}
-                                      </>
+
+                                    let keyDescription: ReactNode = t(
+                                      FIELD_DESCRIPTIONS.KEY
                                     )
-                                  } else if (isBatchMode) {
-                                    keyDescription = t(
-                                      'Enter one API key per line for batch creation'
-                                    )
-                                  }
-                                  return (
-                                    <FormItem>
-                                      <FormLabel>{t('API Key *')}</FormLabel>
-                                      <FormControl>
-                                        <Textarea
-                                          placeholder={keyPlaceholder}
-                                          rows={isBatchMode ? 8 : 4}
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormDescription>
-                                        <div className='flex flex-col gap-2'>
-                                          <span>{keyDescription}</span>
-                                          {isBatchMode && (
-                                            <Button
-                                              type='button'
-                                              variant='outline'
-                                              size='sm'
-                                              onClick={handleDeduplicateKeys}
-                                              className='w-fit'
-                                            >
-                                              <Trash2 className='mr-2 h-4 w-4' />
-                                              {t('Remove Duplicates')}
-                                            </Button>
+                                    if (isEditing) {
+                                      let keyModeDescription = t(
+                                        'Append mode: New keys will be added to the end of the existing key list'
+                                      )
+                                      if (keyMode === 'replace') {
+                                        keyModeDescription = t(
+                                          'Replace mode: Will completely replace all existing keys'
+                                        )
+                                      }
+                                      keyDescription = (
+                                        <>
+                                          {t(
+                                            'Enter new key to update, or leave empty to keep current key'
                                           )}
-                                        </div>
-                                      </FormDescription>
-                                      {isEditing && canRevealChannelKey && (
-                                        <div className='border-border/60 mt-4 flex flex-col gap-3 border-y border-dashed py-4'>
-                                          <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-                                            <div>
-                                              <p className='text-sm font-medium'>
-                                                {t('Current key')}
-                                              </p>
-                                              <p className='text-muted-foreground text-xs'>
-                                                {t(
-                                                  'Verification required to reveal the saved key.'
-                                                )}
-                                              </p>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
+                                          {isMultiKeyChannel && (
+                                            <span className='text-warning mt-1 block'>
+                                              {keyModeDescription}
+                                            </span>
+                                          )}
+                                        </>
+                                      )
+                                    } else if (isBatchMode) {
+                                      keyDescription = t(
+                                        'Enter one API key per line for batch creation'
+                                      )
+                                    }
+                                    return (
+                                      <FormItem>
+                                        <FormLabel>{t('API Key *')}</FormLabel>
+                                        <FormControl>
+                                          <Textarea
+                                            placeholder={keyPlaceholder}
+                                            rows={isBatchMode ? 8 : 4}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormDescription>
+                                          <div className='flex flex-col gap-2'>
+                                            <span>{keyDescription}</span>
+                                            {isBatchMode && (
                                               <Button
                                                 type='button'
                                                 variant='outline'
                                                 size='sm'
-                                                onClick={handleRevealKey}
-                                                disabled={
-                                                  isChannelKeyLoading ||
-                                                  verificationState.loading
-                                                }
+                                                onClick={handleDeduplicateKeys}
+                                                className='w-fit'
                                               >
-                                                {isChannelKeyLoading ||
-                                                verificationState.loading ? (
-                                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                                ) : (
-                                                  <Eye className='mr-2 h-4 w-4' />
-                                                )}
-                                                {t('Reveal key')}
+                                                <Trash2 className='mr-2 h-4 w-4' />
+                                                {t('Remove Duplicates')}
                                               </Button>
-                                              <Button
-                                                type='button'
-                                                variant='ghost'
-                                                size='sm'
-                                                onClick={async () => {
-                                                  if (channelKey) {
-                                                    await copyToClipboard(
-                                                      channelKey
-                                                    )
-                                                  }
-                                                }}
-                                                disabled={!channelKey}
-                                              >
-                                                <Copy className='mr-2 h-4 w-4' />
-                                                {t('Copy')}
-                                              </Button>
-                                            </div>
-                                          </div>
-                                          <Input
-                                            readOnly
-                                            value={channelKey ?? ''}
-                                            placeholder={t(
-                                              'Hidden — verify to reveal'
                                             )}
-                                            className='font-mono'
-                                          />
-                                        </div>
-                                      )}
-                                      <FormMessage />
-                                    </FormItem>
-                                  )
-                                }}
-                              />
-
-                              {currentType === 57 && (
-                                <div className='border-border/60 flex flex-col gap-3 border-y py-4'>
-                                  <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-                                    <div className='text-muted-foreground text-xs'>
-                                      {t(
-                                        'Codex channels use an OAuth JSON credential as the key.'
-                                      )}
-                                    </div>
-                                    <div className='flex flex-wrap items-center gap-2'>
-                                      {isEditing && channelId && (
-                                        <Button
-                                          type='button'
-                                          variant='outline'
-                                          size='sm'
-                                          onClick={handleRefreshCodexCredential}
-                                          disabled={
-                                            sensitiveLocked ||
-                                            isCodexCredentialRefreshing
-                                          }
-                                        >
-                                          {isCodexCredentialRefreshing ? (
-                                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                          ) : (
-                                            <RefreshCw className='mr-2 h-4 w-4' />
-                                          )}
-                                          {isCodexCredentialRefreshing
-                                            ? t('Refreshing...')
-                                            : t('Refresh credential')}
-                                        </Button>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <Alert className='border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-50'>
-                                    <AlertDescription>
-                                      {t(
-                                        "Disclaimer: Personal use only. Do not distribute or share any credentials. This channel has prerequisites and requires prior setup; use it only if you understand the flow and risks, and comply with OpenAI's terms and policies. Credentials and configuration are for Codex CLI integration only, and are not intended for any other client, platform, or channel."
-                                      )}
-                                    </AlertDescription>
-                                  </Alert>
-                                </div>
+                                          </div>
+                                        </FormDescription>
+                                        {isEditing && canRevealChannelKey && (
+                                          <div className='border-border/60 mt-4 flex flex-col gap-3 border-y border-dashed py-4'>
+                                            <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                              <div>
+                                                <p className='text-sm font-medium'>
+                                                  {t('Current key')}
+                                                </p>
+                                                <p className='text-muted-foreground text-xs'>
+                                                  {t(
+                                                    'Verification required to reveal the saved key.'
+                                                  )}
+                                                </p>
+                                              </div>
+                                              <div className='flex items-center gap-2'>
+                                                <Button
+                                                  type='button'
+                                                  variant='outline'
+                                                  size='sm'
+                                                  onClick={handleRevealKey}
+                                                  disabled={
+                                                    isChannelKeyLoading ||
+                                                    verificationState.loading
+                                                  }
+                                                >
+                                                  {isChannelKeyLoading ||
+                                                  verificationState.loading ? (
+                                                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                                  ) : (
+                                                    <Eye className='mr-2 h-4 w-4' />
+                                                  )}
+                                                  {t('Reveal key')}
+                                                </Button>
+                                                <Button
+                                                  type='button'
+                                                  variant='ghost'
+                                                  size='sm'
+                                                  onClick={async () => {
+                                                    if (channelKey) {
+                                                      await copyToClipboard(
+                                                        channelKey
+                                                      )
+                                                    }
+                                                  }}
+                                                  disabled={!channelKey}
+                                                >
+                                                  <Copy className='mr-2 h-4 w-4' />
+                                                  {t('Copy')}
+                                                </Button>
+                                              </div>
+                                            </div>
+                                            <Input
+                                              readOnly
+                                              value={channelKey ?? ''}
+                                              placeholder={t(
+                                                'Hidden — verify to reveal'
+                                              )}
+                                              className='font-mono'
+                                            />
+                                          </div>
+                                        )}
+                                        <FormMessage />
+                                      </FormItem>
+                                    )
+                                  }}
+                                />
                               )}
+
+                              {currentType === CHANNEL_TYPE_CODEX &&
+                                (isEditing || authMode === 'api_key') && (
+                                  <div className='border-border/60 flex flex-col gap-3 border-y py-4'>
+                                    <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                      <div className='text-muted-foreground text-xs'>
+                                        {t(
+                                          'Codex channels use an OAuth JSON credential as the key.'
+                                        )}
+                                      </div>
+                                      <div className='flex flex-wrap items-center gap-2'>
+                                        {isEditing && channelId && (
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={
+                                              handleRefreshCodexCredential
+                                            }
+                                            disabled={
+                                              sensitiveLocked ||
+                                              isCodexCredentialRefreshing
+                                            }
+                                          >
+                                            {isCodexCredentialRefreshing ? (
+                                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                            ) : (
+                                              <RefreshCw className='mr-2 h-4 w-4' />
+                                            )}
+                                            {isCodexCredentialRefreshing
+                                              ? t('Refreshing...')
+                                              : t('Refresh credential')}
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <Alert className='border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-50'>
+                                      <AlertDescription>
+                                        {t(
+                                          "Disclaimer: Personal use only. Do not distribute or share any credentials. This channel has prerequisites and requires prior setup; use it only if you understand the flow and risks, and comply with OpenAI's terms and policies. Credentials and configuration are for Codex CLI integration only, and are not intended for any other client, platform, or channel."
+                                        )}
+                                      </AlertDescription>
+                                    </Alert>
+                                  </div>
+                                )}
 
                               {isEditing && isMultiKeyChannel && (
                                 <FormField
@@ -4233,9 +4430,7 @@ export function ChannelMutateDrawer({
                                         <SelectValue />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent
-                                      alignItemWithTrigger={false}
-                                    >
+                                    <SelectContent alignItemWithTrigger={false}>
                                       <SelectGroup>
                                         <SelectItem value='auto'>
                                           {t('Auto')}
@@ -4371,7 +4566,7 @@ export function ChannelMutateDrawer({
 
                         {(currentType === 1 ||
                           currentType === 14 ||
-                          currentType === 57) && (
+                          currentType === CHANNEL_TYPE_CODEX) && (
                           <div
                             id={ADVANCED_SETTINGS_SECTION_IDS.fieldPassthrough}
                             className={sideDrawerSectionClassName(
@@ -4416,7 +4611,8 @@ export function ChannelMutateDrawer({
                                   )}
                                 />
 
-                                {(currentType === 1 || currentType === 57) && (
+                                {(currentType === CHANNEL_TYPE_OPENAI ||
+                                  currentType === CHANNEL_TYPE_CODEX) && (
                                   <>
                                     <FormField
                                       control={form.control}
@@ -4775,7 +4971,7 @@ export function ChannelMutateDrawer({
               {isSubmitting && (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               )}
-              {isEditing ? t('Update Channel') : t('Save changes')}
+              {submitButtonLabel}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -4806,6 +5002,15 @@ export function ChannelMutateDrawer({
               shouldValidate: true,
             })
           }}
+        />
+      )}
+
+      {oauthTarget && (
+        <OAuthCredentialsDialog
+          open={oauthCredentialsDialogOpen}
+          onOpenChange={setOAuthCredentialsDialogOpen}
+          channelId={oauthTarget.id}
+          channelType={oauthTarget.type}
         />
       )}
 

@@ -68,8 +68,17 @@ export async function getUserGroups(): Promise<{
 // ============================================================================
 
 export async function getStatus() {
-  const res = await api.get('/api/status')
-  return res.data?.data as Record<string, unknown>
+  try {
+    const res = await api.get('/api/status', {
+      skipErrorHandler: true,
+    })
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return res.data.data as Record<string, unknown>
+    }
+    return undefined
+  } catch {
+    return undefined
+  }
 }
 
 export async function getNotice(): Promise<{
@@ -77,8 +86,17 @@ export async function getNotice(): Promise<{
   message?: string
   data?: string
 }> {
-  const res = await api.get('/api/notice')
-  return res.data
+  try {
+    const res = await api.get('/api/notice', {
+      skipErrorHandler: true,
+    })
+    if (res.data && typeof res.data === 'object') {
+      return res.data as { success: boolean; message?: string; data?: string }
+    }
+    return { success: false, data: '' }
+  } catch {
+    return { success: false, data: '' }
+  }
 }
 
 // ============================================================================

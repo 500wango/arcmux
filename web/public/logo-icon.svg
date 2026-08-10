@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="ArcMux">
+  <rect width="64" height="64" rx="14" fill="#020617"/>
+  <path d="M15 47 29 15h8l14 32h-9l-2.3-6H26.1l-2.3 6H15Z" fill="#f97316"/>
+  <path d="M28.5 34h8.8L33 22.8 28.5 34Z" fill="#fff7ed"/>
+  <path d="M14 30c12-6 24-10 38-12" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+</svg>

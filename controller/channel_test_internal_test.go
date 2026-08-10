@@ -85,6 +85,66 @@ func TestValidateChannelRequiresNewAPIBaseURL(t *testing.T) {
 	}
 }
 
+func TestValidateChannelAllowsEmptyKeyForOAuthChannels(t *testing.T) {
+	for _, channelType := range []int{constant.ChannelTypeCodex, constant.ChannelTypeAnthropic} {
+		t.Run(constant.GetChannelTypeName(channelType), func(t *testing.T) {
+			err := validateChannel(&model.Channel{Type: channelType, Key: "  "}, true)
+			require.NoError(t, err)
+		})
+	}
+
+	err := validateChannel(&model.Channel{Type: constant.ChannelTypeOpenAI, Key: "  "}, true)
+	require.ErrorContains(t, err, "channel cannot be empty")
+}
+
+func TestAllowsEmptyOAuthChannelKeyRequiresExplicitSupportedSingleMode(t *testing.T) {
+	tests := []struct {
+		name     string
+		request  *AddChannelRequest
+		expected bool
+	}{
+		{
+			name: "supported OAuth channel",
+			request: &AddChannelRequest{
+				AuthMode: "oauth",
+				Mode:     "single",
+				Channel:  &model.Channel{Type: constant.ChannelTypeAnthropic},
+			},
+			expected: true,
+		},
+		{
+			name: "API key mode",
+			request: &AddChannelRequest{
+				AuthMode: "api_key",
+				Mode:     "single",
+				Channel:  &model.Channel{Type: constant.ChannelTypeAnthropic},
+			},
+		},
+		{
+			name: "batch OAuth mode",
+			request: &AddChannelRequest{
+				AuthMode: "oauth",
+				Mode:     "batch",
+				Channel:  &model.Channel{Type: constant.ChannelTypeAnthropic},
+			},
+		},
+		{
+			name: "unsupported channel",
+			request: &AddChannelRequest{
+				AuthMode: "oauth",
+				Mode:     "single",
+				Channel:  &model.Channel{Type: constant.ChannelTypeOpenAI},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expected, allowsEmptyOAuthChannelKey(test.request))
+		})
+	}
+}
+
 func TestNewAPIChannelRegistration(t *testing.T) {
 	apiType, ok := common.ChannelType2APIType(constant.ChannelTypeNewAPI)
 

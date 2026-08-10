@@ -1,8 +1,8 @@
 <div align="center">
 
-![new-api](/web/public/logo.png)
+![ArcMux](/web/public/logo-icon.svg)
 
-# New API
+# ArcMux
 
 🍥 **次世代大規模モデルゲートウェイとAI資産管理システム**
 
@@ -491,7 +491,7 @@ Token、Origin 検証、PAT の契約については[ユーザー認証とログ
 
 <div align="center">
 
-### 💖 New APIをご利用いただきありがとうございます
+### 💖 ArcMuxをご利用いただきありがとうございます
 
 このプロジェクトがあなたのお役に立てたなら、ぜひ ⭐️ スターをください！
 

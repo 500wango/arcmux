@@ -51,7 +51,7 @@ export function SystemBrand(props: SystemBrandProps) {
   const { logo } = useSystemConfig()
 
   const variant = props.variant ?? 'sidebar'
-  const name = status?.system_name || props.defaultName || 'New API'
+  const name = status?.system_name || props.defaultName || 'ArcMux'
   const version =
     status?.version || props.defaultVersion || t('Unknown version')
 
@@ -65,7 +65,7 @@ export function SystemBrand(props: SystemBrandProps) {
           'hover:bg-accent focus-visible:ring-ring/40 focus-visible:ring-2'
         )}
       >
-        <div className='flex size-5 items-center justify-center overflow-hidden rounded-md'>
+        <div className='flex size-5 items-center justify-center overflow-hidden rounded-md ring-1 ring-primary/20'>
           <img
             src={logo}
             alt={t('Logo')}

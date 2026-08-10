@@ -20,6 +20,11 @@ import { formatCurrencyFromUSD, formatQuotaWithCurrency } from '@/lib/currency'
 import { formatTimestampToDate } from '@/lib/format'
 
 import {
+  CHANNEL_TYPE_ANTHROPIC,
+  CHANNEL_TYPE_CODEX,
+  CHANNEL_TYPE_GEMINI,
+  CHANNEL_TYPE_MOONSHOT,
+  CHANNEL_TYPE_XAI,
   CHANNEL_STATUS_CONFIG,
   CHANNEL_TYPES,
   MULTI_KEY_STATUS_CONFIG,
@@ -32,6 +37,18 @@ import type { Channel, ChannelSettings, ChannelOtherSettings } from '../types'
 // ============================================================================
 // Channel Type Utilities
 // ============================================================================
+
+const UPSTREAM_OAUTH_CHANNEL_TYPES = new Set([
+  CHANNEL_TYPE_ANTHROPIC,
+  CHANNEL_TYPE_GEMINI,
+  CHANNEL_TYPE_MOONSHOT,
+  CHANNEL_TYPE_XAI,
+  CHANNEL_TYPE_CODEX,
+])
+
+export function supportsUpstreamOAuth(type: number): boolean {
+  return UPSTREAM_OAUTH_CHANNEL_TYPES.has(type)
+}
 
 /**
  * Get human-readable channel type label

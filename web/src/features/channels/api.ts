@@ -73,6 +73,183 @@ export type CodexCredentialRefreshResponse = {
   }
 }
 
+export type UpstreamOAuthProvider =
+  | 'codex'
+  | 'claude'
+  | 'gemini-cli'
+  | 'antigravity'
+  | 'kimi'
+  | 'xai'
+export type UpstreamOAuthFlowType = 'browser' | 'device'
+
+export type UpstreamOAuthCredential = {
+  id: number
+  channel_id: number
+  provider: UpstreamOAuthProvider
+  account_id: string
+  account_email?: string
+  display_name?: string
+  status: number
+  disabled_reason?: string
+  expires_at?: number
+  cooldown_until?: number
+  last_selected_at?: number
+  last_success_at?: number
+  last_failure_at?: number
+  failure_count: number
+  created_at: number
+  updated_at: number
+}
+
+export type UpstreamOAuthStartResult = {
+  session_id: string
+  provider: UpstreamOAuthProvider
+  flow_type: UpstreamOAuthFlowType
+  authorization_url?: string
+  verification_url?: string
+  user_code?: string
+  expires_at: number
+  poll_interval?: number
+}
+
+export type UpstreamOAuthCredentialListResponse = {
+  success: boolean
+  message?: string
+  data?: {
+    items: UpstreamOAuthCredential[]
+    encryption_configured: boolean
+    enabled_providers: UpstreamOAuthProvider[]
+    import_max_bytes: number
+    import_max_accounts: number
+  }
+}
+
+export async function listUpstreamOAuthCredentials(
+  channelId: number
+): Promise<UpstreamOAuthCredentialListResponse> {
+  const response = await api.get(
+    `/api/channel/${channelId}/oauth/credentials`,
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function startUpstreamOAuth(
+  channelId: number,
+  provider: UpstreamOAuthProvider,
+  flowType: UpstreamOAuthFlowType,
+  commercialAcknowledged: boolean
+): Promise<{
+  success: boolean
+  message?: string
+  data?: UpstreamOAuthStartResult
+}> {
+  const response = await api.post(
+    `/api/channel/${channelId}/oauth/start`,
+    {
+      provider,
+      flow_type: flowType,
+      commercial_acknowledged: commercialAcknowledged,
+    },
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function completeUpstreamOAuth(
+  channelId: number,
+  sessionId: string,
+  callbackUrl: string
+): Promise<{
+  success: boolean
+  message?: string
+  data?: UpstreamOAuthCredential
+}> {
+  const response = await api.post(
+    `/api/channel/${channelId}/oauth/sessions/${sessionId}/callback`,
+    { callback_url: callbackUrl },
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function pollUpstreamOAuth(
+  channelId: number,
+  sessionId: string
+): Promise<{
+  success: boolean
+  message?: string
+  data?: {
+    status: 'pending' | 'completed'
+    credential?: UpstreamOAuthCredential
+  }
+}> {
+  const response = await api.post(
+    `/api/channel/${channelId}/oauth/sessions/${sessionId}/poll`,
+    undefined,
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function refreshUpstreamOAuthCredential(
+  channelId: number,
+  credentialId: number
+): Promise<{ success: boolean; message?: string }> {
+  const response = await api.post(
+    `/api/channel/${channelId}/oauth/credentials/${credentialId}/refresh`,
+    undefined,
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function setUpstreamOAuthCredentialEnabled(
+  channelId: number,
+  credentialId: number,
+  enabled: boolean
+): Promise<{ success: boolean; message?: string }> {
+  const response = await api.put(
+    `/api/channel/${channelId}/oauth/credentials/${credentialId}/status`,
+    { enabled },
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function deleteUpstreamOAuthCredential(
+  channelId: number,
+  credentialId: number
+): Promise<{ success: boolean; message?: string }> {
+  const response = await api.delete(
+    `/api/channel/${channelId}/oauth/credentials/${credentialId}`,
+    channelActionConfig()
+  )
+  return response.data
+}
+
+export async function importUpstreamOAuthCredentials(
+  channelId: number,
+  provider: UpstreamOAuthProvider,
+  content: string,
+  commercialAcknowledged: boolean
+): Promise<{
+  success: boolean
+  message?: string
+  data?: { imported: number }
+}> {
+  const response = await api.post(
+    `/api/channel/${channelId}/oauth/credentials/import`,
+    {
+      provider,
+      content,
+      commercial_acknowledged: commercialAcknowledged,
+    },
+    channelActionConfig()
+  )
+  return response.data
+}
+
 // ============================================================================
 // Base Channel CRUD Operations
 // ============================================================================
@@ -117,9 +294,11 @@ export async function getChannelOps(): Promise<ChannelOpsResponse> {
  * Create new channel(s)
  * Supports single, batch, and multi-key modes
  */
-export async function createChannel(
-  data: AddChannelRequest
-): Promise<{ success: boolean; message?: string }> {
+export async function createChannel(data: AddChannelRequest): Promise<{
+  success: boolean
+  message?: string
+  data?: { channel_ids: number[] }
+}> {
   const res = await api.post('/api/channel', data, channelActionConfig())
   return res.data
 }

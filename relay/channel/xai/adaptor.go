@@ -11,6 +11,7 @@ import (
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/relaykit/dto"
 	"github.com/QuantumNous/new-api/relaykit/types"
+	"github.com/QuantumNous/new-api/service"
 
 	"github.com/QuantumNous/new-api/relay/constant"
 
@@ -51,12 +52,22 @@ func (a *Adaptor) Init(info *relaycommon.RelayInfo) {
 }
 
 func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
+	if info.UpstreamOAuthProvider == service.UpstreamOAuthProviderXAI && info.RelayMode != constant.RelayModeImagesGenerations && info.RelayMode != constant.RelayModeImagesEdits {
+		info.ChannelBaseUrl = "https://cli-chat-proxy.grok.com"
+	}
 	return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, info.RequestURLPath, info.ChannelType), nil
 }
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	channel.SetupApiRequestHeader(info, c, req)
 	req.Set("Authorization", "Bearer "+info.ApiKey)
+	if info.UpstreamOAuthProvider == service.UpstreamOAuthProviderXAI && strings.Contains(info.ChannelBaseUrl, "cli-chat-proxy.grok.com") {
+		req.Set("X-XAI-Token-Auth", "xai-grok-cli")
+		req.Set("x-grok-client-version", "0.2.120")
+		req.Set("x-grok-client-identifier", "grok-shell")
+		req.Set("x-authenticateresponse", "authenticate-response")
+		req.Set("User-Agent", "xai-grok-workspace/0.2.120")
+	}
 	return nil
 }
 

@@ -33,6 +33,7 @@ import {
   Trash2,
   RefreshCw,
   Loader2,
+  KeyRound,
 } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -67,11 +68,13 @@ import {
   handleToggleChannelStatus,
   isChannelEnabled,
   isMultiKeyChannel,
+  supportsUpstreamOAuth,
 } from '../lib'
 import { parseUpstreamUpdateMeta } from '../lib/upstream-update-utils'
 import type { Channel } from '../types'
 import { ChannelRowActionsLayoutContext } from './channel-row-actions-context'
 import { useChannels } from './channels-provider'
+import { OAuthCredentialsDialog } from './dialogs/oauth-credentials-dialog'
 
 interface DataTableRowActionsProps {
   row: Row<Channel>
@@ -87,9 +90,11 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [isTogglingStatus, setIsTogglingStatus] = useState(false)
+  const [oauthDialogOpen, setOAuthDialogOpen] = useState(false)
 
   const isEnabled = isChannelEnabled(channel)
   const isMultiKey = isMultiKeyChannel(channel)
+  const supportsOAuth = supportsUpstreamOAuth(channel.type)
   const canEditSensitive = hasPermission(
     currentUser,
     ADMIN_PERMISSION_RESOURCES.CHANNEL,
@@ -297,6 +302,15 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             </DropdownMenuShortcut>
           </DropdownMenuItem>
 
+          {supportsOAuth && (
+            <DropdownMenuItem onClick={() => setOAuthDialogOpen(true)}>
+              {t('Manage OAuth accounts')}
+              <DropdownMenuShortcut>
+                <KeyRound size={16} />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )}
+
           {/* Detect Upstream Updates (only for fetchable channel types) */}
           {MODEL_FETCHABLE_TYPES.has(channel.type) && (
             <DropdownMenuItem
@@ -398,6 +412,15 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           setDeleteConfirmOpen(false)
         }}
       />
+
+      {supportsOAuth && (
+        <OAuthCredentialsDialog
+          open={oauthDialogOpen}
+          onOpenChange={setOAuthDialogOpen}
+          channelId={channel.id}
+          channelType={channel.type}
+        />
+      )}
     </div>
   )
 }

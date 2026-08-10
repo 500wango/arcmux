@@ -11,6 +11,8 @@ logs
 web/dist
 web/node_modules
 .env
+.env.prod
+.env.*.local
 one-api
 new-api
 /__debug_bin*
@@ -27,6 +29,8 @@ plans
 electron/node_modules
 electron/dist
 /data/
+deploy/*.local
+
 .gomodcache/
 .gocache-temp
 .gopath
@@ -41,3 +45,7 @@ service/relayconvert/chat_responses_live_local_test.go
 service/openaicompat/chat_responses_live_local_test.go
 go.work
 go.work.sum
+
+# Root-level tooling
+node_modules/
+.reasonix/

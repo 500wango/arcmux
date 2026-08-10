@@ -466,9 +466,29 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	common.SetContextKey(c, constant.ContextKeyChannelModelMapping, channel.GetModelMapping())
 	common.SetContextKey(c, constant.ContextKeyChannelStatusCodeMapping, channel.GetStatusCodeMapping())
 
-	key, index, newAPIError := channel.GetNextEnabledKey()
-	if newAPIError != nil {
-		return newAPIError
+	key, credentialId, oauthProvider, hasOAuthCredentials, oauthErr := service.SelectUpstreamOAuthCredential(c.Request.Context(), channel, modelName)
+	index := 0
+	if oauthErr != nil {
+		return types.NewError(oauthErr, types.ErrorCodeChannelNoAvailableKey)
+	}
+	if !hasOAuthCredentials {
+		var newAPIError *types.NewAPIError
+		key, index, newAPIError = channel.GetNextEnabledKey()
+		if newAPIError != nil {
+			return newAPIError
+		}
+		if len(service.ProvidersForChannelType(channel.Type)) > 0 && strings.TrimSpace(key) == "" {
+			return types.NewError(errors.New("no API key or OAuth credential is configured"), types.ErrorCodeChannelNoAvailableKey)
+		}
+	}
+	common.SetContextKey(c, constant.ContextKeyUpstreamCredentialId, credentialId)
+	common.SetContextKey(c, constant.ContextKeyUpstreamOAuthProvider, oauthProvider)
+	if credentialId > 0 {
+		oauthMetadata, metadataErr := service.GetUpstreamOAuthRequestMetadata(credentialId, channel.Id)
+		if metadataErr != nil {
+			return types.NewError(metadataErr, types.ErrorCodeChannelNoAvailableKey)
+		}
+		common.SetContextKey(c, constant.ContextKeyUpstreamOAuthMetadata, oauthMetadata)
 	}
 	if channel.ChannelInfo.IsMultiKey {
 		common.SetContextKey(c, constant.ContextKeyChannelIsMultiKey, true)

@@ -2,19 +2,57 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="icon" type="image/svg+xml" href="/logo-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate" />
 
     <!-- Primary Meta Tags -->
-    <title>New API</title>
-    <meta name="title" content="New API" />
+    <title>ArcMux</title>
+    <meta name="title" content="ArcMux" />
     <meta
       name="description"
-      content="Unified AI API gateway and admin dashboard."
+      content="Enterprise AI gateway — unified API proxy with multi-provider routing, usage analytics, and access control."
     />
 
     <meta name="theme-color" content="#fff" />
+    <script>
+      ;(() => {
+        const failurePattern =
+          /ChunkLoadError|Loading chunk|reading ['"]call['"]|webpack_require/
+
+        function isScriptLoadFailure(error) {
+          const target = error?.target
+          return (
+            target instanceof HTMLScriptElement &&
+            target.src.includes('/static/js/')
+          )
+        }
+
+        function recoverFromStaleBundle(error) {
+          const message = String(
+            error?.reason || error?.error || error?.message || error
+          )
+          if (!failurePattern.test(message) && !isScriptLoadFailure(error)) {
+            return
+          }
+
+          const bundleVersion = [...document.scripts]
+            .map((script) => script.src)
+            .filter((source) => source.includes('/static/js/'))
+            .join('|')
+          const reloadKey = `frontend-bundle-reload:${location.pathname}`
+          if (sessionStorage.getItem(reloadKey) === bundleVersion) return
+
+          sessionStorage.setItem(reloadKey, bundleVersion)
+          const freshUrl = new URL(location.href)
+          freshUrl.searchParams.set('__frontend_reload', Date.now().toString())
+          location.replace(freshUrl.href)
+        }
+
+        window.addEventListener('error', recoverFromStaleBundle)
+        window.addEventListener('unhandledrejection', recoverFromStaleBundle)
+      })()
+    </script>
     <!--umami-->
     <!--Google Analytics-->
   </head>

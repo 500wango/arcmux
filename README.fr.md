@@ -1,8 +1,8 @@
 <div align="center">
 
-![new-api](/web/public/logo.png)
+![ArcMux](/web/public/logo-icon.svg)
 
-# New API
+# ArcMux
 
 🍥 **Passerelle de modèles étendus de nouvelle génération et système de gestion d'actifs d'IA**
 
@@ -491,7 +491,7 @@ Si les politiques de votre organisation ne permettent pas l'utilisation de logic
 
 <div align="center">
 
-### 💖 Merci d'utiliser New API
+### 💖 Merci d'utiliser ArcMux
 
 Si ce projet vous est utile, bienvenue à nous donner une ⭐️ Étoile！
 

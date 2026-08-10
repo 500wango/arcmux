@@ -29,6 +29,16 @@ import type { HomePageContentResponse } from './types'
  * Returns Markdown/HTML content or iframe URL
  */
 export async function getHomePageContent(): Promise<HomePageContentResponse> {
-  const res = await api.get('/api/home_page_content')
-  return res.data
+  try {
+    const res = await api.get('/api/home_page_content', {
+      skipErrorHandler: true,
+    })
+    if (res.data && typeof res.data === 'object') {
+      return res.data as HomePageContentResponse
+    }
+    return { success: false, data: '' }
+  } catch {
+    return { success: false, data: '' }
+  }
 }
+

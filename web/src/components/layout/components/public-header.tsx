@@ -175,93 +175,88 @@ export function PublicHeader(props: PublicHeaderProps) {
 
   return (
     <>
-      <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
-        <div
-          className={cn(
-            'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            scrolled ? 'max-w-[52rem] px-3 pt-3' : 'max-w-7xl px-4 pt-0 md:px-6'
-          )}
-        >
-          <nav
-            className={cn(
-              'flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              scrolled
-                ? 'bg-background/60 ring-border/50 h-12 rounded-2xl pr-1.5 pl-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'
-                : 'h-16 px-2'
-            )}
+      <header
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+          scrolled
+            ? 'border-border/50 bg-background/85 border-b shadow-xs backdrop-blur-xl'
+            : 'bg-transparent'
+        )}
+      >
+        <div className='mx-auto flex h-14 max-w-6xl items-center justify-between px-6 md:h-16'>
+          {/* Logo */}
+          <Link
+            to={homeUrl}
+            className='group flex shrink-0 items-center gap-2.5'
           >
-            {/* Logo */}
-            <Link
-              to={homeUrl}
-              className='group flex shrink-0 items-center gap-2.5'
-            >
-              <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
-                {loading ? (
-                  <Skeleton className='size-full rounded-lg' />
-                ) : customLogo ? (
-                  customLogo
-                ) : (
-                  <HeaderLogo
-                    src={systemLogo}
-                    loading={loading}
-                    logoLoaded={logoLoaded}
-                    className='size-full rounded-lg object-contain'
-                  />
-                )}
-              </div>
-              <span className='text-sm font-semibold tracking-tight'>
-                {loading ? <Skeleton className='h-4 w-16' /> : displaySiteName}
-              </span>
-            </Link>
+            <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
+              {loading ? (
+                <Skeleton className='size-full rounded-lg' />
+              ) : customLogo ? (
+                customLogo
+              ) : (
+                <HeaderLogo
+                  src={systemLogo}
+                  loading={loading}
+                  logoLoaded={logoLoaded}
+                  className='size-full rounded-lg object-contain'
+                />
+              )}
+            </div>
+            <span className='text-sm font-semibold tracking-tight'>
+              {loading ? (
+                <Skeleton className='h-4 w-16' />
+              ) : (
+                displaySiteName
+              )}
+            </span>
+          </Link>
 
-            {/* Desktop nav */}
-            <div className='hidden items-center gap-0.5 sm:flex'>
-              {links.map((link, i) => {
-                const isActive = pathname === link.href
-                if (link.external) {
-                  return (
-                    <a
-                      key={i}
-                      href={link.href}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      aria-disabled={link.disabled}
-                      tabIndex={link.disabled ? -1 : undefined}
-                      onClick={(event) => handleNavLinkClick(event, link)}
-                      className={cn(
-                        'text-muted-foreground hover:text-foreground rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-200',
-                        link.disabled && 'pointer-events-none opacity-50'
-                      )}
-                    >
-                      {t(link.title)}
-                    </a>
-                  )
-                }
+          {/* Desktop nav */}
+          <div className='hidden items-center gap-1 sm:flex'>
+            {links.map((link, i) => {
+              const isActive = pathname === link.href
+              if (link.external) {
                 return (
-                  <Link
+                  <a
                     key={i}
-                    to={link.href}
-                    disabled={link.disabled}
+                    href={link.href}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-disabled={link.disabled}
+                    tabIndex={link.disabled ? -1 : undefined}
                     onClick={(event) => handleNavLinkClick(event, link)}
                     className={cn(
-                      'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-200',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
+                      'text-muted-foreground hover:text-foreground rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:bg-muted/40',
                       link.disabled && 'pointer-events-none opacity-50'
                     )}
                   >
                     {t(link.title)}
-                  </Link>
+                  </a>
                 )
-              })}
+              }
+              return (
+                <Link
+                  key={i}
+                  to={link.href}
+                  disabled={link.disabled}
+                  onClick={(event) => handleNavLinkClick(event, link)}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-primary/10 text-primary font-semibold shadow-2xs'
+                      : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground',
+                    link.disabled && 'pointer-events-none opacity-50'
+                  )}
+                >
+                  {t(link.title)}
+                </Link>
+              )
+            })}
 
-              {(showLanguageSwitcher ||
-                showThemeSwitch ||
-                showNotifications) && (
-                <div className='bg-border/40 mx-2 h-4 w-px' />
-              )}
+            <div className='bg-border/40 mx-2 h-4 w-px' />
 
+            <div className='flex items-center gap-1'>
               {showLanguageSwitcher && <LanguageSwitcher />}
               {showThemeSwitch && <ThemeSwitch />}
               {showNotifications && (
@@ -276,64 +271,62 @@ export function PublicHeader(props: PublicHeaderProps) {
                   loading={notifications.loading}
                 />
               )}
+            </div>
 
-              {showAuthButtons && (
-                <>
-                  <div className='bg-border/40 mx-1 h-4 w-px' />
-                  {loading ? (
-                    <Skeleton className='h-8 w-20 rounded-lg' />
-                  ) : isAuthenticated ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Button
-                      size='sm'
-                      className='h-8 rounded-lg px-3.5 text-xs font-medium'
-                      render={<Link to='/sign-in' />}
-                    >
-                      {t('Sign in')}
-                    </Button>
+            {showAuthButtons && (
+              <>
+                <div className='bg-border/40 mx-1 h-4 w-px' />
+                {loading ? (
+                  <Skeleton className='h-8 w-20 rounded-lg' />
+                ) : isAuthenticated ? (
+                  <ProfileDropdown />
+                ) : (
+                  <Button
+                    size='sm'
+                    className='h-8.5 rounded-lg px-4 text-xs font-semibold shadow-xs transition-all duration-200 hover:shadow-sm'
+                    render={<Link to='/sign-in' />}
+                  >
+                    {t('Sign in')}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Mobile: compact actions + hamburger */}
+          <div className='flex items-center gap-2 sm:hidden'>
+            {showThemeSwitch && <ThemeSwitch />}
+            {showAuthButtons && !loading && isAuthenticated && (
+              <ProfileDropdown />
+            )}
+            <button
+              type='button'
+              className='relative flex size-9 items-center justify-center'
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={t('Toggle navigation menu')}
+            >
+              <div className='relative size-4'>
+                <span
+                  className={cn(
+                    'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'top-[7px] rotate-45' : 'top-[3px]'
                   )}
-                </>
-              )}
-            </div>
-
-            {/* Mobile: compact actions + hamburger */}
-            <div className='flex items-center gap-2 sm:hidden'>
-              {showThemeSwitch && <ThemeSwitch />}
-              {showAuthButtons && !loading && isAuthenticated && (
-                <ProfileDropdown />
-              )}
-              <Button
-                type='button'
-                variant='ghost'
-                size='icon'
-                className='size-9'
-                onClick={() => setMobileOpen((v) => !v)}
-                aria-label={t('Toggle navigation menu')}
-              >
-                <div className='relative size-4'>
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'top-[7px] rotate-45' : 'top-[3px]'
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 top-[7px] block h-[1.5px] rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'scale-x-0 opacity-0' : 'opacity-100'
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'top-[7px] -rotate-45' : 'top-[11px]'
-                    )}
-                  />
-                </div>
-              </Button>
-            </div>
-          </nav>
+                />
+                <span
+                  className={cn(
+                    'absolute inset-x-0 top-[7px] block h-[1.5px] rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'scale-x-0 opacity-0' : 'opacity-100'
+                  )}
+                />
+                <span
+                  className={cn(
+                    'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'top-[7px] -rotate-45' : 'top-[11px]'
+                  )}
+                />
+              </div>
+            </button>
+          </div>
         </div>
       </header>
 

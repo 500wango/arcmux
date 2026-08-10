@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 130" width="300" height="130" role="img" aria-label="ArcMux">
+  <defs>
+    <linearGradient id="arcmux-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#facc15" />
+    </linearGradient>
+    <style>
+      .arcmux-mux { fill: #0f172a; }
+      .arcmux-tagline { fill: #64748b; }
+      @media (prefers-color-scheme: dark) {
+        .arcmux-mux { fill: #ffffff; }
+        .arcmux-tagline { fill: #94a3b8; }
+      }
+    </style>
+  </defs>
+  <g transform="skewX(-10) translate(20, 0)">
+    <text x="10" y="75" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="58" font-weight="800" fill="url(#arcmux-gradient)" letter-spacing="-1">Arc</text>
+    <text class="arcmux-mux" x="105" y="75" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="58" font-weight="800" letter-spacing="-1">Mux</text>
+    <path d="M 18 55 Q 120 45 250 15" fill="none" stroke="url(#arcmux-gradient)" stroke-width="5" stroke-linecap="round" />
+    <polygon points="250,15 238,12 245,22" fill="#facc15" />
+  </g>
+  <text class="arcmux-tagline" x="150" y="120" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" letter-spacing="2" text-anchor="middle">
+    One Gateway for Every Model.
+  </text>
+</svg>

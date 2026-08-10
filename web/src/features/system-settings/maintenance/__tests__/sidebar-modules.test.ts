@@ -16,27 +16,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-export function sendToFluent(apiKey: string, serverAddress?: string): boolean {
-  if (typeof window === 'undefined') {
-    return false
-  }
+import assert from 'node:assert/strict'
+import { describe, test } from 'node:test'
 
-  const container = document.getElementById('fluent-new-api-container')
-  if (!container) {
-    return false
-  }
+import {
+  parseSidebarModulesAdmin,
+  serializeSidebarModulesAdmin,
+} from '../config'
 
-  const payload = {
-    id: 'new-api',
-    baseUrl: serverAddress || window.location.origin,
-    apiKey: `sk-${apiKey}`,
-  }
+describe('sidebar module compatibility', () => {
+  test('drops legacy chat controls while keeping Playground available', () => {
+    const parsed = parseSidebarModulesAdmin(
+      JSON.stringify({
+        chat: { enabled: true, playground: true, chat: true },
+        console: { enabled: true, detail: true },
+      })
+    )
 
-  container.dispatchEvent(
-    new CustomEvent('fluent:prefill', {
-      detail: payload,
-    })
-  )
-
-  return true
-}
+    assert.equal(parsed.chat, undefined)
+    assert.equal(parsed.console.playground, true)
+    const serialized = JSON.parse(serializeSidebarModulesAdmin(parsed))
+    assert.equal(serialized.chat, undefined)
+  })
+})

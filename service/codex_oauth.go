@@ -110,27 +110,29 @@ func ExtractCodexAccountIDFromJWT(token string) (string, bool) {
 	if !ok {
 		return "", false
 	}
-	raw, ok := claims[codexJWTClaimPath]
-	if !ok {
-		return "", false
+	// OpenAI tokens use a namespaced auth claim, while CLI exports may expose
+	// the same value as a top-level or camelCase claim.
+	if raw, exists := claims[codexJWTClaimPath]; exists {
+		if obj, ok := raw.(map[string]any); ok {
+			for _, key := range []string{"chatgpt_account_id", "chatgptAccountId", "account_id", "accountId"} {
+				if s, ok := rawStringClaim(obj[key]); ok {
+					return s, true
+				}
+			}
+		}
 	}
-	obj, ok := raw.(map[string]any)
-	if !ok {
-		return "", false
+	for _, key := range []string{"chatgpt_account_id", "chatgptAccountId", "account_id", "accountId"} {
+		if s, ok := rawStringClaim(claims[key]); ok {
+			return s, true
+		}
 	}
-	v, ok := obj["chatgpt_account_id"]
-	if !ok {
-		return "", false
-	}
-	s, ok := v.(string)
-	if !ok {
-		return "", false
-	}
+	return "", false
+}
+
+func rawStringClaim(value any) (string, bool) {
+	s, ok := value.(string)
 	s = strings.TrimSpace(s)
-	if s == "" {
-		return "", false
-	}
-	return s, true
+	return s, ok && s != ""
 }
 
 func ExtractEmailFromJWT(token string) (string, bool) {

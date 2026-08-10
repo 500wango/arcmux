@@ -95,3 +95,23 @@ describe('New API channel', () => {
     assert.equal(result.success, true)
   })
 })
+
+describe('OAuth-backed channels', () => {
+  function oauthForm(type: number) {
+    return {
+      ...CHANNEL_FORM_DEFAULT_VALUES,
+      name: 'OAuth upstream',
+      type,
+      key: '',
+      models: 'test-model',
+    }
+  }
+
+  test('allows empty keys for OAuth-backed providers', () => {
+    assert.equal(channelFormSchema.safeParse(oauthForm(57)).success, true)
+    assert.equal(channelFormSchema.safeParse(oauthForm(14)).success, true)
+    assert.equal(channelFormSchema.safeParse(oauthForm(24)).success, true)
+    assert.equal(channelFormSchema.safeParse(oauthForm(25)).success, true)
+    assert.equal(channelFormSchema.safeParse(oauthForm(48)).success, true)
+  })
+})

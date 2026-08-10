@@ -20,11 +20,10 @@ For commercial licensing, please contact support@quantumnous.com
  * Theme presets — color palettes, border radius, and density scaling.
  *
  * Usage: applied via data attributes on <body>:
- *   <body data-theme-preset="rose-garden" data-theme-radius="lg" data-theme-scale="sm" />
+ *   <body data-theme-preset="ember" data-theme-radius="md" data-theme-scale="sm" />
  *
  * - `data-theme-preset` overrides the color palette defined in ./theme.css and
- *   ships a curated default `--radius` value to match the preset's mood
- *   (e.g. rose-garden uses 1rem, ocean-breeze uses 0.3rem).
+ *   ships a curated default `--radius` value to match the preset's mood.
  * - Each preset declares both light and dark color values; dark values use
  *   the `.dark` ancestor selector so they apply when html has the `.dark` class.
  * - `data-theme-radius` and `data-theme-scale` adjust visual density
@@ -32,378 +31,437 @@ For commercial licensing, please contact support@quantumnous.com
  *   blocks so an explicit user choice overrides the preset's default radius.
  */
 
-/* ── Underground ──────────────────────────────────────────────────────── */
-[data-theme-preset='underground'] {
-  --primary: oklch(0.5315 0.0694 156.19);
+/* ── Ember ──────────────────────────────────────────────────────── */
+[data-theme-preset='ember'] {
+  --primary: oklch(0.71 0.14 38);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.5748 0.0862 336.52);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.5315 0.0694 156.19);
-  --chart-1: oklch(0.5315 0.0694 156.19);
-  --chart-2: oklch(0.5748 0.0862 336.52);
-  --chart-3: oklch(0.8603 0.0731 158.6);
-  --chart-4: oklch(0.8292 0.0422 332);
-  --chart-5: oklch(0.9564 0.0234 159.23);
-  --sidebar-primary: oklch(0.5315 0.0694 156.19);
+  --secondary: oklch(0.945 0.01 80);
+  --secondary-foreground: oklch(0.35 0.02 40);
+  --ring: oklch(0.71 0.14 38);
+  --chart-1: oklch(0.71 0.14 38);
+  --chart-2: oklch(0.65 0.12 145);
+  --chart-3: oklch(0.6 0.12 220);
+  --chart-4: oklch(0.69 0.15 90);
+  --chart-5: oklch(0.72 0.1 320);
+  --sidebar-primary: oklch(0.71 0.14 38);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9687 0.0051 247.88);
-  --sidebar-accent-foreground: oklch(0.279 0.0299 260.05);
-  --sidebar-ring: oklch(0.5315 0.0694 156.19);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.45 0.03 40);
+  --sidebar-ring: oklch(0.71 0.14 38);
   --radius: 0.5rem;
 }
-.dark [data-theme-preset='underground'] {
-  --primary: oklch(0.6147 0.0867 154.73);
-  --primary-foreground: oklch(0.129 0.0306 264.71);
-  --secondary: oklch(0.6624 0.0855 334.26);
-  --secondary-foreground: oklch(0.129 0.0306 264.71);
-  --ring: oklch(0.6147 0.0867 154.73);
-  --chart-1: oklch(0.6147 0.0867 154.73);
-  --chart-2: oklch(0.6624 0.0855 334.26);
-  --chart-3: oklch(0.7122 0.0991 154.66);
-  --chart-4: oklch(0.7308 0.07 333.6);
-  --chart-5: oklch(0.781 0.0975 156.24);
-  --sidebar-primary: oklch(0.6147 0.0867 154.73);
-  --sidebar-primary-foreground: oklch(0.129 0.0306 264.71);
-  --sidebar-accent: oklch(0.279 0.0299 260.05);
-  --sidebar-accent-foreground: oklch(0.929 0.0095 255.53);
-  --sidebar-ring: oklch(0.6147 0.0867 154.73);
+.dark [data-theme-preset='ember'] {
+  --primary: oklch(0.75 0.13 45);
+  --primary-foreground: oklch(0.145 0.005 40);
+  --secondary: oklch(0.28 0.005 60);
+  --secondary-foreground: oklch(0.9 0.01 80);
+  --ring: oklch(0.75 0.13 45);
+  --chart-1: oklch(0.75 0.13 45);
+  --chart-2: oklch(0.656 0.15 145);
+  --chart-3: oklch(0.65 0.12 220);
+  --chart-4: oklch(0.72 0.15 90);
+  --chart-5: oklch(0.75 0.1 320);
+  --sidebar-primary: oklch(0.75 0.13 45);
+  --sidebar-primary-foreground: oklch(0.145 0.005 40);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 80);
+  --sidebar-ring: oklch(0.75 0.13 45);
 }
 
-/* ── Rose Garden ──────────────────────────────────────────────────────── */
-[data-theme-preset='rose-garden'] {
-  --primary: oklch(0.5827 0.2418 12.23);
+/* ── Slate ──────────────────────────────────────────────────────── */
+[data-theme-preset='slate'] {
+  --primary: oklch(0.45 0.01 260);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.8131 0.1129 5.67);
-  --secondary-foreground: oklch(0.2686 0.0032 34.85);
-  --ring: oklch(0.5827 0.2418 12.23);
-  --chart-1: oklch(0.5827 0.2418 12.23);
-  --chart-2: oklch(0.8938 0.0563 3.77);
-  --chart-3: oklch(0.7135 0.1879 7.69);
-  --chart-4: oklch(0.8131 0.1129 5.67);
-  --chart-5: oklch(0.9429 0.0283 5.52);
-  --sidebar-primary: oklch(0.5827 0.2418 12.23);
+  --secondary: oklch(0.92 0.005 260);
+  --secondary-foreground: oklch(0.25 0.01 260);
+  --ring: oklch(0.45 0.01 260);
+  --chart-1: oklch(0.45 0.01 260);
+  --chart-2: oklch(0.5 0.08 200);
+  --chart-3: oklch(0.55 0.05 300);
+  --chart-4: oklch(0.5 0.06 160);
+  --chart-5: oklch(0.45 0.04 330);
+  --sidebar-primary: oklch(0.45 0.01 260);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5827 0.2418 12.23);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5827 0.2418 12.23);
-  --radius: 1rem;
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.35 0.01 260);
+  --sidebar-ring: oklch(0.45 0.01 260);
+  --radius: 0.375rem;
 }
-.dark [data-theme-preset='rose-garden'] {
-  --primary: oklch(0.6476 0.2348 10.36);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.8131 0.1129 5.67);
-  --secondary-foreground: oklch(0.9227 0.0029 34.49);
-  --ring: oklch(0.6476 0.2348 10.36);
-  --chart-1: oklch(0.6476 0.2348 10.36);
-  --chart-2: oklch(0.8938 0.0563 3.77);
-  --chart-3: oklch(0.7135 0.1879 7.69);
-  --chart-4: oklch(0.8131 0.1129 5.67);
-  --chart-5: oklch(0.9429 0.0283 5.52);
-  --sidebar-primary: oklch(0.6476 0.2348 10.36);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.6476 0.2348 10.36);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.6476 0.2348 10.36);
+.dark [data-theme-preset='slate'] {
+  --primary: oklch(0.7 0.015 260);
+  --primary-foreground: oklch(0.15 0.005 260);
+  --secondary: oklch(0.3 0.005 260);
+  --secondary-foreground: oklch(0.9 0.005 260);
+  --ring: oklch(0.7 0.015 260);
+  --chart-1: oklch(0.7 0.015 260);
+  --chart-2: oklch(0.65 0.08 200);
+  --chart-3: oklch(0.65 0.05 300);
+  --chart-4: oklch(0.65 0.06 160);
+  --chart-5: oklch(0.65 0.04 330);
+  --sidebar-primary: oklch(0.7 0.015 260);
+  --sidebar-primary-foreground: oklch(0.15 0.005 260);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.005 260);
+  --sidebar-ring: oklch(0.7 0.015 260);
 }
 
-/* ── Lake View ────────────────────────────────────────────────────────── */
-[data-theme-preset='lake-view'] {
-  --primary: oklch(0.765 0.177 163.22);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.551 0.0899 200.52);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.765 0.177 163.22);
-  --chart-1: oklch(0.765 0.177 163.22);
-  --chart-2: oklch(0.551 0.0899 200.52);
-  --chart-3: oklch(0.845 0.143 164.98);
-  --chart-4: oklch(0.8576 0.1202 192.38);
-  --chart-5: oklch(0.95 0.052 163.05);
-  --sidebar-primary: oklch(0.765 0.177 163.22);
-  --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.765 0.177 163.22);
-  --sidebar-accent-foreground: oklch(0.2742 0.0208 165.96);
-  --sidebar-ring: oklch(0.765 0.177 163.22);
+/* ── Coral Reef ─────────────────────────────────────────────────── */
+[data-theme-preset='coral-reef'] {
+  --primary: oklch(0.65 0.2 20);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.82 0.08 350);
+  --secondary-foreground: oklch(0.3 0.02 20);
+  --ring: oklch(0.65 0.2 20);
+  --chart-1: oklch(0.65 0.2 20);
+  --chart-2: oklch(0.55 0.15 340);
+  --chart-3: oklch(0.7 0.12 60);
+  --chart-4: oklch(0.75 0.1 300);
+  --chart-5: oklch(0.6 0.1 180);
+  --sidebar-primary: oklch(0.65 0.2 20);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.45 0.05 20);
+  --sidebar-ring: oklch(0.65 0.2 20);
   --radius: 0.75rem;
 }
-.dark [data-theme-preset='lake-view'] {
-  --primary: oklch(0.765 0.177 163.22);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.551 0.0899 200.52);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.765 0.177 163.22);
-  --chart-1: oklch(0.765 0.177 163.22);
-  --chart-2: oklch(0.551 0.0899 200.52);
-  --chart-3: oklch(0.845 0.143 164.98);
-  --chart-4: oklch(0.8576 0.1202 192.38);
-  --chart-5: oklch(0.95 0.052 163.05);
-  --sidebar-primary: oklch(0.765 0.177 163.22);
-  --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.765 0.177 163.22);
-  --sidebar-accent-foreground: oklch(0 0 0);
-  --sidebar-ring: oklch(0.765 0.177 163.22);
+.dark [data-theme-preset='coral-reef'] {
+  --primary: oklch(0.7 0.18 22);
+  --primary-foreground: oklch(0.15 0.02 20);
+  --secondary: oklch(0.82 0.08 350);
+  --secondary-foreground: oklch(0.9 0.01 20);
+  --ring: oklch(0.7 0.18 22);
+  --chart-1: oklch(0.7 0.18 22);
+  --chart-2: oklch(0.65 0.15 340);
+  --chart-3: oklch(0.75 0.12 60);
+  --chart-4: oklch(0.78 0.1 300);
+  --chart-5: oklch(0.7 0.1 180);
+  --sidebar-primary: oklch(0.7 0.18 22);
+  --sidebar-primary-foreground: oklch(0.15 0.02 20);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 20);
+  --sidebar-ring: oklch(0.7 0.18 22);
 }
 
-/* ── Sunset Glow ──────────────────────────────────────────────────────── */
-[data-theme-preset='sunset-glow'] {
-  --primary: oklch(0.5591 0.1882 25.33);
+/* ── Sage ───────────────────────────────────────────────────────── */
+[data-theme-preset='sage'] {
+  --primary: oklch(0.55 0.08 145);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.7938 0.1248 42.42);
-  --secondary-foreground: oklch(0 0 0);
-  --ring: oklch(0.5591 0.1882 25.33);
-  --chart-1: oklch(0.5591 0.1882 25.33);
-  --chart-2: oklch(0.7938 0.1248 42.42);
-  --chart-3: oklch(0.809 0.0875 17.95);
-  --chart-4: oklch(0.8964 0.0724 43.73);
-  --chart-5: oklch(0.9381 0.0241 16.66);
-  --sidebar-primary: oklch(0.5591 0.1882 25.33);
+  --secondary: oklch(0.9 0.02 145);
+  --secondary-foreground: oklch(0.25 0.02 145);
+  --ring: oklch(0.55 0.08 145);
+  --chart-1: oklch(0.55 0.08 145);
+  --chart-2: oklch(0.5 0.06 190);
+  --chart-3: oklch(0.6 0.1 100);
+  --chart-4: oklch(0.65 0.05 280);
+  --chart-5: oklch(0.5 0.07 40);
+  --sidebar-primary: oklch(0.55 0.08 145);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5591 0.1882 25.33);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5591 0.1882 25.33);
-  --radius: 1rem;
-}
-.dark [data-theme-preset='sunset-glow'] {
-  --primary: oklch(0.6387 0.1822 23.51);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.7938 0.1248 42.42);
-  --secondary-foreground: oklch(0 0 0);
-  --ring: oklch(0.6387 0.1822 23.51);
-  --chart-1: oklch(0.6387 0.1822 23.51);
-  --chart-2: oklch(0.7938 0.1248 42.42);
-  --chart-3: oklch(0.809 0.0875 17.95);
-  --chart-4: oklch(0.8964 0.0724 43.73);
-  --chart-5: oklch(0.9381 0.0241 16.66);
-  --sidebar-primary: oklch(0.6387 0.1822 23.51);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.6387 0.1822 23.51);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.6387 0.1822 23.51);
-}
-
-/* ── Forest Whisper ───────────────────────────────────────────────────── */
-[data-theme-preset='forest-whisper'] {
-  --primary: oklch(0.5276 0.1072 182.22);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.5236 0.0505 250.18);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.5276 0.1072 182.22);
-  --chart-1: oklch(0.5276 0.1072 182.22);
-  --chart-2: oklch(0.5236 0.0505 250.18);
-  --chart-3: oklch(0.7741 0.1676 178.16);
-  --chart-4: oklch(0.7294 0.0416 244.67);
-  --chart-5: oklch(0.9511 0.0547 177.24);
-  --sidebar-primary: oklch(0.5276 0.1072 182.22);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5276 0.1072 182.22);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5276 0.1072 182.22);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.35 0.02 145);
+  --sidebar-ring: oklch(0.55 0.08 145);
   --radius: 0.5rem;
 }
-.dark [data-theme-preset='forest-whisper'] {
-  --primary: oklch(0.5991 0.1318 180.39);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.6578 0.0485 247.35);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.5991 0.1318 180.39);
-  --chart-1: oklch(0.5991 0.1318 180.39);
-  --chart-2: oklch(0.6578 0.0485 247.35);
-  --chart-3: oklch(0.7741 0.1676 178.16);
-  --chart-4: oklch(0.7294 0.0416 244.67);
-  --chart-5: oklch(0.9511 0.0547 177.24);
-  --sidebar-primary: oklch(0.5991 0.1318 180.39);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5991 0.1318 180.39);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5991 0.1318 180.39);
+.dark [data-theme-preset='sage'] {
+  --primary: oklch(0.65 0.1 145);
+  --primary-foreground: oklch(0.15 0.02 145);
+  --secondary: oklch(0.28 0.01 145);
+  --secondary-foreground: oklch(0.9 0.01 145);
+  --ring: oklch(0.65 0.1 145);
+  --chart-1: oklch(0.65 0.1 145);
+  --chart-2: oklch(0.6 0.08 190);
+  --chart-3: oklch(0.68 0.12 100);
+  --chart-4: oklch(0.7 0.06 280);
+  --chart-5: oklch(0.62 0.08 40);
+  --sidebar-primary: oklch(0.65 0.1 145);
+  --sidebar-primary-foreground: oklch(0.15 0.02 145);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 145);
+  --sidebar-ring: oklch(0.65 0.1 145);
 }
 
-/* ── Ocean Breeze ─────────────────────────────────────────────────────── */
-[data-theme-preset='ocean-breeze'] {
-  --primary: oklch(0.5461 0.2152 262.88);
+/* ── Midnight ───────────────────────────────────────────────────── */
+[data-theme-preset='midnight'] {
+  --primary: oklch(0.55 0.15 270);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.5854 0.2041 277.12);
-  --secondary-foreground: oklch(1 0 0);
-  --ring: oklch(0.5461 0.2152 262.88);
-  --chart-1: oklch(0.5461 0.2152 262.88);
-  --chart-2: oklch(0.5854 0.2041 277.12);
-  --chart-3: oklch(0.809 0.0922 251.81);
-  --chart-4: oklch(0.785 0.1007 274.72);
-  --chart-5: oklch(0.932 0.0281 255.58);
-  --sidebar-primary: oklch(0.5461 0.2152 262.88);
+  --secondary: oklch(0.85 0.04 270);
+  --secondary-foreground: oklch(0.2 0.02 270);
+  --ring: oklch(0.55 0.15 270);
+  --chart-1: oklch(0.55 0.15 270);
+  --chart-2: oklch(0.5 0.12 220);
+  --chart-3: oklch(0.6 0.1 300);
+  --chart-4: oklch(0.65 0.08 180);
+  --chart-5: oklch(0.5 0.06 330);
+  --sidebar-primary: oklch(0.55 0.15 270);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5461 0.2152 262.88);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5461 0.2152 262.88);
-  --radius: 0.3rem;
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.35 0.04 270);
+  --sidebar-ring: oklch(0.55 0.15 270);
+  --radius: 0.375rem;
 }
-.dark [data-theme-preset='ocean-breeze'] {
-  --primary: oklch(0.623 0.188 259.81);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.5854 0.2041 277.12);
-  --secondary-foreground: oklch(0 0 0);
-  --ring: oklch(0.623 0.188 259.81);
-  --chart-1: oklch(0.623 0.188 259.81);
-  --chart-2: oklch(0.5854 0.2041 277.12);
-  --chart-3: oklch(0.809 0.0922 251.81);
-  --chart-4: oklch(0.785 0.1007 274.72);
-  --chart-5: oklch(0.932 0.0281 255.58);
-  --sidebar-primary: oklch(0.623 0.188 259.81);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.623 0.188 259.81);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.623 0.188 259.81);
-}
-
-/* ── Lavender Dream ───────────────────────────────────────────────────── */
-[data-theme-preset='lavender-dream'] {
-  --primary: oklch(0.5709 0.1808 306.89);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.811 0.0589 201.14);
-  --secondary-foreground: oklch(0 0 0);
-  --ring: oklch(0.5709 0.1808 306.89);
-  --chart-1: oklch(0.5709 0.1808 306.89);
-  --chart-2: oklch(0.811 0.0589 201.14);
-  --chart-3: oklch(0.8281 0.078 309.73);
-  --chart-4: oklch(0.8611 0.0504 198.03);
-  --chart-5: oklch(0.947 0.0212 309.77);
-  --sidebar-primary: oklch(0.5709 0.1808 306.89);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.5709 0.1808 306.89);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.5709 0.1808 306.89);
-  --radius: 1rem;
-}
-.dark [data-theme-preset='lavender-dream'] {
-  --primary: oklch(0.6359 0.1699 307.95);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.811 0.0589 201.14);
-  --secondary-foreground: oklch(0 0 0);
-  --ring: oklch(0.6359 0.1699 307.95);
-  --chart-1: oklch(0.6359 0.1699 307.95);
-  --chart-2: oklch(0.811 0.0589 201.14);
-  --chart-3: oklch(0.8281 0.078 309.73);
-  --chart-4: oklch(0.8611 0.0504 198.03);
-  --chart-5: oklch(0.947 0.0212 309.77);
-  --sidebar-primary: oklch(0.6359 0.1699 307.95);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.6359 0.1699 307.95);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.6359 0.1699 307.95);
+.dark [data-theme-preset='midnight'] {
+  --primary: oklch(0.65 0.14 270);
+  --primary-foreground: oklch(0.15 0.02 270);
+  --secondary: oklch(0.28 0.01 270);
+  --secondary-foreground: oklch(0.9 0.01 270);
+  --ring: oklch(0.65 0.14 270);
+  --chart-1: oklch(0.65 0.14 270);
+  --chart-2: oklch(0.6 0.12 220);
+  --chart-3: oklch(0.68 0.1 300);
+  --chart-4: oklch(0.7 0.08 180);
+  --chart-5: oklch(0.62 0.06 330);
+  --sidebar-primary: oklch(0.65 0.14 270);
+  --sidebar-primary-foreground: oklch(0.15 0.02 270);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 270);
+  --sidebar-ring: oklch(0.65 0.14 270);
 }
 
-/* ── Simple Large-font ────────────────────────────────────────────────── */
-[data-theme-preset='simple-large'] {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.15 0 0);
+/* ── Sunrise ────────────────────────────────────────────────────── */
+[data-theme-preset='sunrise'] {
+  --primary: oklch(0.72 0.16 75);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.88 0.08 80);
+  --secondary-foreground: oklch(0.25 0.02 75);
+  --ring: oklch(0.72 0.16 75);
+  --chart-1: oklch(0.72 0.16 75);
+  --chart-2: oklch(0.65 0.12 50);
+  --chart-3: oklch(0.68 0.1 100);
+  --chart-4: oklch(0.7 0.06 30);
+  --chart-5: oklch(0.6 0.08 200);
+  --sidebar-primary: oklch(0.72 0.16 75);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.4 0.03 75);
+  --sidebar-ring: oklch(0.72 0.16 75);
+  --radius: 0.625rem;
+}
+.dark [data-theme-preset='sunrise'] {
+  --primary: oklch(0.78 0.15 75);
+  --primary-foreground: oklch(0.15 0.02 75);
+  --secondary: oklch(0.3 0.02 75);
+  --secondary-foreground: oklch(0.9 0.01 80);
+  --ring: oklch(0.78 0.15 75);
+  --chart-1: oklch(0.78 0.15 75);
+  --chart-2: oklch(0.72 0.12 50);
+  --chart-3: oklch(0.75 0.1 100);
+  --chart-4: oklch(0.76 0.06 30);
+  --chart-5: oklch(0.68 0.08 200);
+  --sidebar-primary: oklch(0.78 0.15 75);
+  --sidebar-primary-foreground: oklch(0.15 0.02 75);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 80);
+  --sidebar-ring: oklch(0.78 0.15 75);
+}
+
+/* ── Moss ───────────────────────────────────────────────────────── */
+[data-theme-preset='moss'] {
+  --primary: oklch(0.5 0.1 140);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.88 0.03 140);
+  --secondary-foreground: oklch(0.2 0.02 140);
+  --ring: oklch(0.5 0.1 140);
+  --chart-1: oklch(0.5 0.1 140);
+  --chart-2: oklch(0.55 0.08 170);
+  --chart-3: oklch(0.48 0.06 110);
+  --chart-4: oklch(0.6 0.12 80);
+  --chart-5: oklch(0.52 0.07 280);
+  --sidebar-primary: oklch(0.5 0.1 140);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.3 0.02 140);
+  --sidebar-ring: oklch(0.5 0.1 140);
+  --radius: 0.5rem;
+}
+.dark [data-theme-preset='moss'] {
+  --primary: oklch(0.6 0.12 140);
+  --primary-foreground: oklch(0.15 0.02 140);
+  --secondary: oklch(0.28 0.01 140);
+  --secondary-foreground: oklch(0.9 0.01 140);
+  --ring: oklch(0.6 0.12 140);
+  --chart-1: oklch(0.6 0.12 140);
+  --chart-2: oklch(0.62 0.1 170);
+  --chart-3: oklch(0.58 0.08 110);
+  --chart-4: oklch(0.65 0.14 80);
+  --chart-5: oklch(0.6 0.08 280);
+  --sidebar-primary: oklch(0.6 0.12 140);
+  --sidebar-primary-foreground: oklch(0.15 0.02 140);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 140);
+  --sidebar-ring: oklch(0.6 0.12 140);
+}
+
+/* ── Plum ───────────────────────────────────────────────────────── */
+[data-theme-preset='plum'] {
+  --primary: oklch(0.55 0.16 310);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.85 0.05 310);
+  --secondary-foreground: oklch(0.25 0.03 310);
+  --ring: oklch(0.55 0.16 310);
+  --chart-1: oklch(0.55 0.16 310);
+  --chart-2: oklch(0.5 0.12 280);
+  --chart-3: oklch(0.6 0.1 340);
+  --chart-4: oklch(0.65 0.08 40);
+  --chart-5: oklch(0.5 0.06 200);
+  --sidebar-primary: oklch(0.55 0.16 310);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.35 0.04 310);
+  --sidebar-ring: oklch(0.55 0.16 310);
+  --radius: 0.75rem;
+}
+.dark [data-theme-preset='plum'] {
+  --primary: oklch(0.65 0.15 310);
+  --primary-foreground: oklch(0.15 0.02 310);
+  --secondary: oklch(0.28 0.02 310);
+  --secondary-foreground: oklch(0.9 0.01 310);
+  --ring: oklch(0.65 0.15 310);
+  --chart-1: oklch(0.65 0.15 310);
+  --chart-2: oklch(0.6 0.12 280);
+  --chart-3: oklch(0.68 0.1 340);
+  --chart-4: oklch(0.7 0.08 40);
+  --chart-5: oklch(0.6 0.06 200);
+  --sidebar-primary: oklch(0.65 0.15 310);
+  --sidebar-primary-foreground: oklch(0.15 0.02 310);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 310);
+  --sidebar-ring: oklch(0.65 0.15 310);
+}
+
+/* ── Frost ──────────────────────────────────────────────────────── */
+[data-theme-preset='frost'] {
+  --primary: oklch(0.55 0.12 240);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.88 0.03 240);
+  --secondary-foreground: oklch(0.2 0.01 240);
+  --ring: oklch(0.55 0.12 240);
+  --chart-1: oklch(0.55 0.12 240);
+  --chart-2: oklch(0.5 0.1 200);
+  --chart-3: oklch(0.6 0.08 280);
+  --chart-4: oklch(0.65 0.06 160);
+  --chart-5: oklch(0.5 0.05 320);
+  --sidebar-primary: oklch(0.55 0.12 240);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --sidebar-accent-foreground: oklch(0.35 0.02 240);
+  --sidebar-ring: oklch(0.55 0.12 240);
+  --radius: 0.5rem;
+}
+.dark [data-theme-preset='frost'] {
+  --primary: oklch(0.65 0.12 240);
+  --primary-foreground: oklch(0.15 0.01 240);
+  --secondary: oklch(0.28 0.01 240);
+  --secondary-foreground: oklch(0.9 0.01 240);
+  --ring: oklch(0.65 0.12 240);
+  --chart-1: oklch(0.65 0.12 240);
+  --chart-2: oklch(0.6 0.1 200);
+  --chart-3: oklch(0.68 0.08 280);
+  --chart-4: oklch(0.7 0.06 160);
+  --chart-5: oklch(0.62 0.05 320);
+  --sidebar-primary: oklch(0.65 0.12 240);
+  --sidebar-primary-foreground: oklch(0.15 0.01 240);
+  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent-foreground: oklch(0.9 0.01 240);
+  --sidebar-ring: oklch(0.65 0.12 240);
+}
+
+/* ── Charcoal ───────────────────────────────────────────────────── */
+[data-theme-preset='charcoal'] {
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.12 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
+  --card-foreground: oklch(0.12 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.12 0 0);
 
-  --primary: oklch(0.22 0 0);
+  --primary: oklch(0.2 0 0);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.93 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.95 0 0);
-  --muted-foreground: oklch(0.36 0 0);
-  --accent: oklch(0.91 0 0);
-  --accent-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.92 0 0);
+  --secondary-foreground: oklch(0.12 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.35 0 0);
+  --accent: oklch(0.9 0 0);
+  --accent-foreground: oklch(0.12 0 0);
 
   --destructive: oklch(0.55 0.2 28);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.45 0.12 145);
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.72 0.14 75);
-  --warning-foreground: oklch(0.15 0 0);
+  --warning-foreground: oklch(0.12 0 0);
   --info: oklch(0.48 0.13 250);
   --info-foreground: oklch(1 0 0);
-  --neutral: oklch(0.36 0 0);
+  --neutral: oklch(0.35 0 0);
   --neutral-foreground: oklch(1 0 0);
 
-  --border: oklch(0.82 0 0);
-  --input: oklch(0.82 0 0);
-  --ring: oklch(0.22 0 0);
+  --border: oklch(0.85 0 0);
+  --input: oklch(0.85 0 0);
+  --ring: oklch(0.2 0 0);
 
-  --chart-1: oklch(0.22 0 0);
+  --chart-1: oklch(0.2 0 0);
   --chart-2: oklch(0.45 0.12 145);
   --chart-3: oklch(0.48 0.13 250);
   --chart-4: oklch(0.72 0.14 75);
   --chart-5: oklch(0.55 0.2 28);
 
-  --sidebar: oklch(0.96 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.22 0 0);
+  --sidebar: oklch(0.95 0 0);
+  --sidebar-foreground: oklch(0.12 0 0);
+  --sidebar-primary: oklch(0.2 0 0);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.82 0 0);
-  --sidebar-ring: oklch(0.22 0 0);
-
-  --skeleton-base: oklch(0.9 0 0);
-  --skeleton-highlight: oklch(0.97 0 0);
-
-  --radius: 0.5rem;
-  --text-xs: 0.9rem;
-  --text-sm: 1rem;
-  --text-base: 1.125rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.45rem;
-  --text-2xl: 1.75rem;
-  --text-3xl: 2.15rem;
-  --spacing: 0.3rem;
+  --sidebar-accent: oklch(0.88 0 0);
+  --sidebar-accent-foreground: oklch(0.12 0 0);
+  --sidebar-border: oklch(0.85 0 0);
+  --sidebar-ring: oklch(0.2 0 0);
+  --radius: 0.25rem;
 }
-.dark [data-theme-preset='simple-large'] {
-  --background: oklch(0.215 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.27 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.29 0 0);
-  --popover-foreground: oklch(0.97 0 0);
+.dark [data-theme-preset='charcoal'] {
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.16 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.96 0 0);
 
-  --primary: oklch(0.94 0 0);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.315 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.315 0 0);
-  --muted-foreground: oklch(0.82 0 0);
-  --accent: oklch(0.36 0 0);
-  --accent-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.96 0 0);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.96 0 0);
 
-  --destructive: oklch(0.68 0.19 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.72 0.13 145);
-  --success-foreground: oklch(0.145 0 0);
-  --warning: oklch(0.82 0.13 75);
-  --warning-foreground: oklch(0.145 0 0);
-  --info: oklch(0.72 0.12 250);
-  --info-foreground: oklch(0.145 0 0);
-  --neutral: oklch(0.82 0 0);
-  --neutral-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.7 0.19 22);
+  --destructive-foreground: oklch(0.12 0 0);
+  --success: oklch(0.65 0.15 145);
+  --success-foreground: oklch(0.12 0 0);
+  --warning: oklch(0.78 0.15 75);
+  --warning-foreground: oklch(0.12 0 0);
+  --info: oklch(0.6 0.13 250);
+  --info-foreground: oklch(0.12 0 0);
+  --neutral: oklch(0.72 0 0);
+  --neutral-foreground: oklch(0.12 0 0);
 
-  --border: oklch(1 0 0 / 18%);
-  --input: oklch(1 0 0 / 24%);
-  --ring: oklch(0.94 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.96 0 0);
 
-  --chart-1: oklch(0.94 0 0);
-  --chart-2: oklch(0.72 0.13 145);
-  --chart-3: oklch(0.72 0.12 250);
-  --chart-4: oklch(0.82 0.13 75);
-  --chart-5: oklch(0.68 0.19 25);
+  --chart-1: oklch(0.96 0 0);
+  --chart-2: oklch(0.65 0.15 145);
+  --chart-3: oklch(0.6 0.13 250);
+  --chart-4: oklch(0.78 0.15 75);
+  --chart-5: oklch(0.7 0.19 22);
 
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.94 0 0);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.34 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(1 0 0 / 18%);
-  --sidebar-ring: oklch(0.94 0 0);
-
-  --skeleton-base: oklch(0.315 0 0);
-  --skeleton-highlight: oklch(0.415 0 0);
+  --sidebar: oklch(0.09 0 0);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.96 0 0);
+  --sidebar-primary-foreground: oklch(0.12 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.96 0 0);
 }
 
-/* Overview accents mirror the public blue/cyan/violet palette by default.
+/* Overview accents mirror the default amber/gold/green palette by default.
  * Named presets map those slots to their own chart palette so the overview
  * stays coherent with the user's selected theme. */
 [data-theme-preset]:not([data-theme-preset='default']) {
@@ -415,21 +473,10 @@ For commercial licensing, please contact support@quantumnous.com
 /* ── Semantic surface bridge ──────────────────────────────────────────── */
 /* Color presets should tint the surfaces most components actually use, not
  * only primary buttons. These derived tokens keep the app theme-aware without
- * duplicating per-component dark-mode overrides.
- *
- * NOTE: `:not()` contributes its argument's specificity, so this selector
- * resolves to (0,3,0). Presets that define bespoke surfaces below need to
- * either match that specificity or opt out here — the latter is cleaner.
- *
- * Opt-outs:
- *   - `default`: keeps neutral surfaces from :root.
- *   - `anthropic`: warm cream surfaces are a brand choice, NOT a primary-mix
- *     derivation (the Anthropic system deliberately uses warm neutrals for
- *     cards/borders rather than tinting them with the clay accent).
- *   - `simple-large`: keeps intentionally neutral, high-contrast surfaces. */
+ * duplicating per-component dark-mode overrides. */
 [data-theme-preset]:not([data-theme-preset='default']):not(
   [data-theme-preset='anthropic']
-):not([data-theme-preset='simple-large']) {
+):not([data-theme-preset='charcoal']) {
   --card: color-mix(in oklch, var(--primary) 3%, var(--background));
   --popover: color-mix(in oklch, var(--primary) 5%, var(--background));
   --muted: color-mix(in oklch, var(--primary) 7%, var(--background));
@@ -454,7 +501,7 @@ For commercial licensing, please contact support@quantumnous.com
 .dark
   [data-theme-preset]:not([data-theme-preset='default']):not(
     [data-theme-preset='anthropic']
-  ):not([data-theme-preset='simple-large']) {
+  ):not([data-theme-preset='charcoal']) {
   --card: color-mix(in oklch, var(--primary) 8%, var(--background));
   --popover: color-mix(in oklch, var(--primary) 12%, var(--background));
   --muted: color-mix(in oklch, var(--primary) 12%, var(--background));
@@ -472,72 +519,49 @@ For commercial licensing, please contact support@quantumnous.com
 }
 
 /* ── Anthropic ────────────────────────────────────────────────────────── */
-/*
- * Inspired by Anthropic's official brand language: warm cream canvas
+/* Inspired by Anthropic's official brand language: warm cream canvas
  * (#faf9f5) on warm slate ink (#141413), with clay/coral (#d97757) as the
- * single primary accent. The dormant accent palette (olive, sky, fig,
- * cactus) is wired into chart and semantic tokens.
- *
- * Defining counter-positioning: a tinted (non-white) canvas with warm
- * neutral cards and borders — NOT primary-tinted surfaces. This is the
- * brand's deliberate counter-positioning against every cool-gray AI tool.
- *
- * Anthropic is opted out of the semantic surface bridge above so these
- * bespoke warm-neutral surface tokens win the cascade. Without the opt-out,
- * the bridge selector (specificity 0,3,0 because of `:not()`) would override
- * this block (specificity 0,1,0) and tint every surface with the clay
- * accent — producing the peach/pink look that doesn't match Anthropic.
- *
- * OKLCH hue 95 = warm yellow-cream (matches #faf9f5 family);
- * OKLCH hue 60 = warm slate (matches #141413 family);
- * OKLCH hue 38 = clay/coral (matches #d97757).
- */
+ * single primary accent. */
 [data-theme-preset='anthropic'] {
-  /* Canvas + ink — the defining pair. */
-  --background: oklch(0.984 0.004 95); /* ≈ #faf9f5 cream */
-  --foreground: oklch(0.205 0.005 60); /* ≈ #141413 ink */
+  --background: oklch(0.984 0.004 95);
+  --foreground: oklch(0.205 0.005 60);
 
-  /* Warm-neutral surfaces (NOT primary-tinted). Stepped opacity matches
-   * the Anthropic surface ladder: canvas → secondary → card → strong. */
-  --card: oklch(0.945 0.008 92); /* ≈ #efe9de */
+  --card: oklch(0.945 0.008 92);
   --card-foreground: oklch(0.205 0.005 60);
-  --popover: oklch(0.97 0.006 92); /* slight cream lift */
+  --popover: oklch(0.97 0.006 92);
   --popover-foreground: oklch(0.205 0.005 60);
 
-  /* Clay/coral — Anthropic's signature accent, used scarcely on CTAs. */
-  --primary: oklch(0.685 0.142 38); /* ≈ #d97757 */
+  --primary: oklch(0.685 0.142 38);
   --primary-foreground: oklch(0.99 0.005 95);
 
   --secondary: oklch(0.925 0.008 92);
   --secondary-foreground: oklch(0.255 0.005 60);
 
   --muted: oklch(0.94 0.007 92);
-  --muted-foreground: oklch(0.51 0.006 75); /* ≈ #5e5d59 warm gray */
+  --muted-foreground: oklch(0.51 0.006 75);
   --accent: oklch(0.92 0.009 92);
   --accent-foreground: oklch(0.205 0.005 60);
 
   --destructive: oklch(0.55 0.18 27);
   --destructive-foreground: oklch(0.985 0 0);
-  --success: oklch(0.59 0.082 130); /* olive #788c5d */
+  --success: oklch(0.59 0.082 130);
   --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.78 0.13 70); /* kraft amber */
+  --warning: oklch(0.78 0.13 70);
   --warning-foreground: oklch(0.205 0.005 60);
-  --info: oklch(0.67 0.075 248); /* sky #6a9bcc */
+  --info: oklch(0.67 0.075 248);
   --info-foreground: oklch(0.985 0 0);
   --neutral: oklch(0.51 0.006 75);
   --neutral-foreground: oklch(0.205 0.005 60);
 
-  /* Hairline borders — warm gray, not coral. */
-  --border: oklch(0.895 0.008 92); /* ≈ #e8e6dc */
+  --border: oklch(0.895 0.008 92);
   --input: oklch(0.895 0.008 92);
   --ring: oklch(0.685 0.142 38);
 
-  /* Chart palette uses Anthropic's dormant accent swatches. */
-  --chart-1: oklch(0.685 0.142 38); /* clay */
-  --chart-2: oklch(0.59 0.082 130); /* olive */
-  --chart-3: oklch(0.67 0.075 248); /* sky */
-  --chart-4: oklch(0.7 0.115 0); /* fig */
-  --chart-5: oklch(0.83 0.027 175); /* cactus */
+  --chart-1: oklch(0.685 0.142 38);
+  --chart-2: oklch(0.59 0.082 130);
+  --chart-3: oklch(0.67 0.075 248);
+  --chart-4: oklch(0.7 0.115 0);
+  --chart-5: oklch(0.83 0.027 175);
 
   --sidebar: oklch(0.955 0.008 92);
   --sidebar-foreground: oklch(0.255 0.005 60);
@@ -552,15 +576,9 @@ For commercial licensing, please contact support@quantumnous.com
   --skeleton-highlight: oklch(0.96 0.006 92);
 
   --radius: 0.625rem;
-
-  /* Default typography for the Anthropic preset is the editorial serif.
-   * Users can override this with the Font axis (`data-theme-font='sans'`).
-   * The `--font-serif` token itself is declared once in theme.css. */
   --font-body: var(--font-serif);
 }
 .dark [data-theme-preset='anthropic'] {
-  /* Warm near-black product surfaces, not pure black — keeps the editorial
-   * personality even when inverted. Coral lifts slightly for legibility. */
   --background: oklch(0.215 0.004 60);
   --foreground: oklch(0.965 0.005 92);
   --card: oklch(0.255 0.004 60);
@@ -612,15 +630,7 @@ For commercial licensing, please contact support@quantumnous.com
   --skeleton-highlight: oklch(0.41 0.004 60);
 }
 
-/* ── Font axis ────────────────────────────────────────────────────────────
- * Mirrors how `data-theme-radius` overrides a preset's default radius:
- * presets may set `--font-body` (Anthropic → serif), and the user's
- * explicit Font choice wins because these blocks sit AFTER preset blocks.
- *
- * The provider resolves `font: 'default'` → `'sans' | 'serif'` against the
- * active preset before writing the attribute, so the DOM always carries a
- * concrete value and CSS only needs the simple `[data-theme-font='serif']`
- * selector below (no `:not()`, no per-preset branches). */
+/* ── Font axis ──────────────────────────────────────────────────────────── */
 [data-theme-font='sans'] {
   --font-body: var(--font-sans);
 }
@@ -628,26 +638,7 @@ For commercial licensing, please contact support@quantumnous.com
   --font-body: var(--font-serif);
 }
 
-/* ── Serif typography refinements ────────────────────────────────────────
- * When the body runs in serif, three things happen:
- *   1. Editorial OpenType features (kern/liga + tabular numerals so numeric
- *      columns stay grid-aligned even with proportional serif glyphs).
- *   2. Every UI surface inherits the editorial voice — buttons, inputs,
- *      tabs, sidebar, table headers, badges, pagination, popovers — all
- *      through Tailwind preflight's `button, input, ... { font: inherit }`
- *      rule plus natural HTML inheritance. We intentionally do NOT carry
- *      a per-slot opt-out list: it adds maintenance cost and only blunts
- *      the Anthropic editorial intent. Monospace contexts are excluded
- *      automatically because:
- *        - `<code>`, `<kbd>`, `<pre>`, `<samp>` are typed monospace by
- *          Tailwind preflight (specificity wins over body inheritance).
- *        - `.font-mono` and `.tabular-nums` utilities declare their own
- *          font-family / font-variant-numeric on the element itself.
- *   3. Headings adopt the Anthropic display setting (medium weight, slight
- *      negative tracking).
- *
- * All keyed off `[data-theme-font='serif']` so they apply to any preset
- * paired with the serif font — not just Anthropic. */
+/* ── Serif typography refinements ──────────────────────────────────────── */
 [data-theme-font='serif'] {
   font-feature-settings:
     'kern' 1,
@@ -655,10 +646,6 @@ For commercial licensing, please contact support@quantumnous.com
     'calt' 1,
     'tnum' 1;
 }
-
-/* Heading tuning — applies to <h*> tags and the shadcn title slots so
- * card/sheet/dialog titles read with the same authoritative voice as
- * page headers. */
 [data-theme-font='serif'] :is(h1, h2, h3, h4, h5, h6),
 [data-theme-font='serif'] [data-slot='sheet-title'],
 [data-theme-font='serif'] [data-slot='dialog-title'],
@@ -668,9 +655,6 @@ For commercial licensing, please contact support@quantumnous.com
   font-weight: 500;
   letter-spacing: -0.012em;
 }
-
-/* Larger displays earn tighter tracking, matching Copernicus/Tiempos
- * editorial display setting (~ -0.02em at 30px+). */
 [data-theme-font='serif'] h1,
 [data-theme-font='serif'] .text-3xl,
 [data-theme-font='serif'] .text-4xl,
@@ -696,7 +680,6 @@ For commercial licensing, please contact support@quantumnous.com
 }
 
 /* ── Density scale ────────────────────────────────────────────────────── */
-/* `sm` = compact UI; `lg` = comfortable; `xl` = extra readable. Default keeps Tailwind defaults. */
 [data-theme-scale='sm'] {
   --text-xs: 0.7rem;
   --text-sm: 0.78rem;
@@ -729,10 +712,6 @@ For commercial licensing, please contact support@quantumnous.com
 }
 
 /* ── Content layout ───────────────────────────────────────────────────── */
-/* `centered` clamps inset content to a comfortable reading width on large screens.
- * Targets every direct child of <SidebarInset> so router outlet wrappers and
- * page content alike are centered. Only kicks in once the viewport exceeds the
- * clamp value. */
 @media (min-width: 1280px) {
   [data-theme-content-layout='centered'] [data-slot='sidebar-inset'] > * {
     max-width: var(--max-content-width, 1280px);

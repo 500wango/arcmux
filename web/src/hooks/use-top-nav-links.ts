@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { useRouterState } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -47,6 +48,7 @@ export function useTopNavLinks(): TopNavLink[] {
   const { t } = useTranslation()
   const { status } = useStatus()
   const { auth } = useAuthStore()
+  const pathname = useRouterState().location.pathname
 
   // Parse HeaderNavModules
   const modules = useMemo(() => {
@@ -87,7 +89,7 @@ export function useTopNavLinks(): TopNavLink[] {
   }
 
   // Docs (supports external links)
-  if (modules?.docs !== false) {
+  if (pathname !== '/' && modules?.docs !== false) {
     if (docsLink) {
       links.push({ title: t('Docs'), href: docsLink, external: true })
     } else {

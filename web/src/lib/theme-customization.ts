@@ -26,56 +26,60 @@ For commercial licensing, please contact support@quantumnous.com
 export const THEME_PRESETS = [
   {
     value: 'default',
-    name: 'Default',
-    swatches: ['oklch(0.72 0.18 250)', 'oklch(0.7 0.12 280)'],
+    name: 'Ember',
+    swatches: ['oklch(0.71 0.14 38)', 'oklch(0.65 0.12 145)'],
   },
   {
     // Inspired by Anthropic's official brand language: warm cream canvas
     // (#faf9f5) paired with clay/coral (#d97757) as the single accent.
-    // Swatches preview the canvas → accent gradient that defines the system.
     value: 'anthropic',
     name: 'Anthropic',
     swatches: ['oklch(0.984 0.005 95)', 'oklch(0.685 0.142 38)'],
   },
   {
-    value: 'simple-large',
-    name: 'Simple Large-font',
-    swatches: ['oklch(0.15 0 0)', 'oklch(0.99 0 0)'],
+    value: 'charcoal',
+    name: 'Charcoal',
+    swatches: ['oklch(0.2 0 0)', 'oklch(0.96 0 0)'],
   },
   {
-    value: 'underground',
-    name: 'Underground',
-    swatches: ['oklch(0.5315 0.0694 156.19)', 'oklch(0.5748 0.0862 336.52)'],
+    value: 'slate',
+    name: 'Slate',
+    swatches: ['oklch(0.45 0.01 260)', 'oklch(0.5 0.08 200)'],
   },
   {
-    value: 'rose-garden',
-    name: 'Rose Garden',
-    swatches: ['oklch(0.5827 0.2418 12.23)', 'oklch(0.8131 0.1129 5.67)'],
+    value: 'coral-reef',
+    name: 'Coral Reef',
+    swatches: ['oklch(0.65 0.2 20)', 'oklch(0.82 0.08 350)'],
   },
   {
-    value: 'lake-view',
-    name: 'Lake View',
-    swatches: ['oklch(0.765 0.177 163.22)', 'oklch(0.551 0.0899 200.52)'],
+    value: 'sage',
+    name: 'Sage',
+    swatches: ['oklch(0.55 0.08 145)', 'oklch(0.5 0.06 190)'],
   },
   {
-    value: 'sunset-glow',
-    name: 'Sunset Glow',
-    swatches: ['oklch(0.5591 0.1882 25.33)', 'oklch(0.7938 0.1248 42.42)'],
+    value: 'midnight',
+    name: 'Midnight',
+    swatches: ['oklch(0.55 0.15 270)', 'oklch(0.5 0.12 220)'],
   },
   {
-    value: 'forest-whisper',
-    name: 'Forest Whisper',
-    swatches: ['oklch(0.5276 0.1072 182.22)', 'oklch(0.5236 0.0505 250.18)'],
+    value: 'sunrise',
+    name: 'Sunrise',
+    swatches: ['oklch(0.72 0.16 75)', 'oklch(0.65 0.12 50)'],
   },
   {
-    value: 'ocean-breeze',
-    name: 'Ocean Breeze',
-    swatches: ['oklch(0.5461 0.2152 262.88)', 'oklch(0.5854 0.2041 277.12)'],
+    value: 'moss',
+    name: 'Moss',
+    swatches: ['oklch(0.5 0.1 140)', 'oklch(0.55 0.08 170)'],
   },
   {
-    value: 'lavender-dream',
-    name: 'Lavender Dream',
-    swatches: ['oklch(0.5709 0.1808 306.89)', 'oklch(0.811 0.0589 201.14)'],
+    value: 'plum',
+    name: 'Plum',
+    swatches: ['oklch(0.55 0.16 310)', 'oklch(0.5 0.12 280)'],
+  },
+  {
+    value: 'frost',
+    name: 'Frost',
+    swatches: ['oklch(0.55 0.12 240)', 'oklch(0.5 0.1 200)'],
   },
 ] as const
 
@@ -88,23 +92,12 @@ export type ContentLayout = 'full' | 'centered'
  * Font axis for the theme.
  *
  * - `default` — resolve at runtime from the active preset
- *   (see `PRESET_DEFAULT_FONT`). The shipped `default` and `anthropic`
- *   presets resolve to serif; other named color presets fall back to
- *   sans unless they list a different choice. Mirrors how
- *   `radius: 'default'` defers to a per-preset hint.
- * - `sans` — humanist sans (Public Sans), the project's UI fallback.
- * - `serif` — editorial serif (Lora + CJK fallbacks), the project's
- *   "soul" typography. Inherits across the whole UI; monospace contexts
- *   keep their own family via Tailwind preflight and `.font-mono`.
+ *   (see `PRESET_DEFAULT_FONT`).
+ * - `sans` — humanist sans (Inter), the project's UI fallback.
+ * - `serif` — editorial serif (Lora + CJK fallbacks).
  */
 export type ThemeFont = 'default' | 'sans' | 'serif'
 
-/**
- * The resolved (non-`default`) font value applied to the DOM. The provider
- * always sets `data-theme-font` to one of these concrete values so CSS only
- * needs simple attribute selectors (no `:not()` gymnastics, no per-preset
- * font branches).
- */
 export type ResolvedThemeFont = Exclude<ThemeFont, 'default'>
 
 export type ThemeCustomization = {
@@ -168,10 +161,7 @@ export const THEME_COOKIE_KEYS = {
  *
  * Co-located with the preset registry so a preset's signature typography
  * is declared in one place. Presets not listed here fall back to the
- * `resolveThemeFont` default of `sans`. The shipped `default` preset
- * opts into serif so the editorial Lora voice is the out-of-the-box
- * experience; vivid color presets stay on the humanist sans so their
- * accents read clearly without competing with the body type.
+ * `resolveThemeFont` default of `sans`.
  */
 export const PRESET_DEFAULT_FONT: Partial<
   Record<ThemePreset, ResolvedThemeFont>

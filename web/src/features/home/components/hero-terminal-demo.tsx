@@ -210,39 +210,56 @@ export function HeroTerminalDemo(props: HeroTerminalDemoProps) {
     <div className={cn('mx-auto w-full max-w-2xl', props.className)}>
       <div
         className={cn(
-          'overflow-hidden rounded-2xl border backdrop-blur-sm',
-          'border-border/60 bg-white/95 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.18)]',
-          'dark:border-white/[0.06] dark:bg-[#0b0f17]/95 dark:shadow-[0_20px_60px_-25px_rgba(0,0,0,0.7)]'
+          'overflow-hidden rounded-2xl border backdrop-blur-xl',
+          'border-border/60 bg-card/90 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.15)]',
+          'dark:border-white/10 dark:bg-card/75 dark:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.8)]'
         )}
       >
-        {/* Tab strip */}
+        {/* Modern macOS-style header & Tab strip */}
         <div
           className={cn(
-            'flex items-center gap-1 border-b px-2 sm:gap-1.5 sm:px-3',
-            'border-border/50 dark:border-white/[0.05]'
+            'flex items-center gap-2 border-b px-4 py-2.5',
+            'border-border/50 bg-muted/40 dark:border-white/[0.06] dark:bg-white/[0.02]'
           )}
         >
-          {API_DEMOS.map((item, index) => {
-            const tone = ACCENT_CLASSES[item.accent]
-            const isActive = index === activeIndex
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleSelect(index)}
-                className={cn(
-                  'relative -mb-px flex items-center gap-1.5 border-b-2 px-2.5 py-2.5 text-[11px] font-medium tracking-wide transition-colors sm:px-3 sm:text-xs',
-                  isActive
-                    ? `${tone.activeBorder} ${tone.activeText}`
-                    : 'text-foreground/40 hover:text-foreground/70 border-transparent'
-                )}
-              >
-                {item.label}
-              </button>
-            )
-          })}
-          <div className='ml-auto flex items-center gap-2 pr-2 sm:pr-3'>
-            <span className='inline-block size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.45)]' />
-            <span className='text-foreground/40 font-mono text-[10px] tracking-wider uppercase'>
+          {/* macOS window dots */}
+          <div className='flex items-center gap-1.5 pr-2'>
+            <span className='size-2.5 rounded-full bg-red-500/80 transition-opacity hover:opacity-100' />
+            <span className='size-2.5 rounded-full bg-amber-500/80 transition-opacity hover:opacity-100' />
+            <span className='size-2.5 rounded-full bg-emerald-500/80 transition-opacity hover:opacity-100' />
+          </div>
+
+          <div className='mx-1 h-3.5 w-px bg-border/60 dark:bg-white/10' />
+
+          {/* Demos tabs */}
+          <div className='flex items-center gap-1'>
+            {API_DEMOS.map((item, index) => {
+              const tone = ACCENT_CLASSES[item.accent]
+              const isActive = index === activeIndex
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelect(index)}
+                  className={cn(
+                    'relative flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-medium tracking-wide transition-all sm:text-xs',
+                    isActive
+                      ? `bg-background/90 text-foreground shadow-xs ring-1 ring-border/50 dark:bg-white/10 dark:text-white ${tone.activeText}`
+                      : 'text-muted-foreground hover:bg-background/40 hover:text-foreground'
+                  )}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Live indicator */}
+          <div className='ml-auto flex items-center gap-1.5 pr-1'>
+            <span className='relative flex size-2'>
+              <span className='absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75' />
+              <span className='relative inline-flex size-2 rounded-full bg-emerald-500' />
+            </span>
+            <span className='text-muted-foreground font-mono text-[10px] font-medium tracking-wider uppercase'>
               200 ok
             </span>
           </div>

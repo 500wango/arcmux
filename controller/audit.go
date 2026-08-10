@@ -44,6 +44,12 @@ var auditContentTemplates = map[string]string{
 	"channel.multi_key_manage":   "Multi-key management ${action} on channel (ID: ${id})",
 	"channel.upstream_apply":     "Applied upstream model changes to channel (ID: ${id})",
 	"channel.upstream_apply_all": "Applied upstream model changes to ${count} channels",
+	"channel.oauth_start":        "Started ${provider} OAuth authorization for channel (ID: ${id})",
+	"channel.oauth_complete":     "Connected ${provider} OAuth credential ${credential_id} to channel (ID: ${id})",
+	"channel.oauth_cancel":       "Cancelled ${provider} OAuth authorization for channel (ID: ${id})",
+	"channel.oauth_refresh":      "Refreshed ${provider} OAuth credential ${credential_id} for channel (ID: ${id})",
+	"channel.oauth_status":       "Changed OAuth credential ${credential_id} status for channel (ID: ${id})",
+	"channel.oauth_delete":       "Deleted ${provider} OAuth credential ${credential_id} from channel (ID: ${id})",
 
 	"redemption.create": "Created ${count} redemption codes named ${name} (${quota} each)",
 

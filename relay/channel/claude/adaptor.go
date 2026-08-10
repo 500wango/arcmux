@@ -6,7 +6,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/relay/channel"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/relaykit/dto"
@@ -82,7 +85,20 @@ func CommonClaudeHeadersOperation(c *gin.Context, req *http.Header, info *relayc
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	channel.SetupApiRequestHeader(info, c, req)
-	req.Set("x-api-key", info.ApiKey)
+	if common.GetContextKeyString(c, constant.ContextKeyUpstreamOAuthProvider) == "claude" {
+		req.Del("x-api-key")
+		req.Set("Authorization", "Bearer "+info.ApiKey)
+		betas := strings.TrimSpace(req.Get("anthropic-beta"))
+		if !strings.Contains(betas, "oauth-2025-04-20") {
+			if betas != "" {
+				betas += ","
+			}
+			betas += "oauth-2025-04-20"
+		}
+		req.Set("anthropic-beta", betas)
+	} else {
+		req.Set("x-api-key", info.ApiKey)
+	}
 	anthropicVersion := c.Request.Header.Get("anthropic-version")
 	if anthropicVersion == "" {
 		anthropicVersion = "2023-06-01"

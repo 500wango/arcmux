@@ -487,7 +487,7 @@ func validateChannel(channel *model.Channel, isAdd bool) error {
 
 	// 如果是添加操作，检查 channel 和 key 是否为空
 	if isAdd {
-		if channel.Key == "" {
+		if strings.TrimSpace(channel.Key) == "" && !channelSupportsOAuthWithoutKey(channel) {
 			return fmt.Errorf("channel cannot be empty")
 		}
 
@@ -518,7 +518,7 @@ func validateChannel(channel *model.Channel, isAdd bool) error {
 	// Codex OAuth key validation (optional, only when JSON object is provided)
 	if channel.Type == constant.ChannelTypeCodex {
 		trimmedKey := strings.TrimSpace(channel.Key)
-		if isAdd || trimmedKey != "" {
+		if trimmedKey != "" {
 			if !strings.HasPrefix(trimmedKey, "{") {
 				return fmt.Errorf("Codex key must be a valid JSON object")
 			}
@@ -536,6 +536,13 @@ func validateChannel(channel *model.Channel, isAdd bool) error {
 	}
 
 	return nil
+}
+
+func channelSupportsOAuthWithoutKey(channel *model.Channel) bool {
+	if channel == nil {
+		return false
+	}
+	return len(service.ProvidersForChannelType(channel.Type)) > 0
 }
 
 func RefreshCodexChannelCredential(c *gin.Context) {
@@ -571,10 +578,18 @@ func RefreshCodexChannelCredential(c *gin.Context) {
 }
 
 type AddChannelRequest struct {
+	AuthMode                  string                `json:"auth_mode"`
 	Mode                      string                `json:"mode"`
 	MultiKeyMode              constant.MultiKeyMode `json:"multi_key_mode"`
 	BatchAddSetKeyPrefix2Name bool                  `json:"batch_add_set_key_prefix_2_name"`
 	Channel                   *model.Channel        `json:"channel"`
+}
+
+func allowsEmptyOAuthChannelKey(request *AddChannelRequest) bool {
+	return request != nil &&
+		request.AuthMode == "oauth" &&
+		request.Mode == "single" &&
+		channelSupportsOAuthWithoutKey(request.Channel)
 }
 
 func getVertexArrayKeys(keys string) ([]string, error) {
@@ -623,6 +638,11 @@ func AddChannel(c *gin.Context) {
 			"success": false,
 			"message": err.Error(),
 		})
+		return
+	}
+	allowEmptyOAuthKey := allowsEmptyOAuthChannelKey(&addChannelRequest)
+	if strings.TrimSpace(addChannelRequest.Channel.Key) == "" && !allowEmptyOAuthKey {
+		c.JSON(http.StatusOK, gin.H{"success": false, "message": "channel cannot be empty"})
 		return
 	}
 
@@ -679,10 +699,11 @@ func AddChannel(c *gin.Context) {
 		})
 		return
 	}
+	allowEmptyKey := allowEmptyOAuthKey
 
 	channels := make([]model.Channel, 0, len(keys))
 	for _, key := range keys {
-		if key == "" {
+		if strings.TrimSpace(key) == "" && !allowEmptyKey {
 			continue
 		}
 		localChannel := addChannelRequest.Channel
@@ -706,9 +727,14 @@ func AddChannel(c *gin.Context) {
 		"type":  addChannelRequest.Channel.Type,
 		"count": len(channels),
 	})
+	channelIds := make([]int, 0, len(channels))
+	for _, channel := range channels {
+		channelIds = append(channelIds, channel.Id)
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+		"data":    gin.H{"channel_ids": channelIds},
 	})
 	return
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/QuantumNous/new-api/relay/constant"
 	"github.com/QuantumNous/new-api/relaykit/dto"
 	"github.com/QuantumNous/new-api/relaykit/types"
+	"github.com/QuantumNous/new-api/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,6 +49,10 @@ func (a *Adaptor) Init(info *relaycommon.RelayInfo) {
 
 func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	baseURL := info.ChannelBaseUrl
+	if info.UpstreamOAuthProvider == service.UpstreamOAuthProviderKimi {
+		baseURL = "https://api.kimi.com/coding"
+		info.ChannelBaseUrl = baseURL
+	}
 	if specialPlan, ok := channelconstant.ChannelSpecialBases[baseURL]; ok {
 		if info.RelayFormat == types.RelayFormatClaude {
 			return fmt.Sprintf("%s/v1/messages", specialPlan.ClaudeBaseURL), nil
@@ -77,6 +82,15 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	channel.SetupApiRequestHeader(info, c, req)
 	req.Set("Authorization", fmt.Sprintf("Bearer %s", info.ApiKey))
+	if info.UpstreamOAuthProvider == service.UpstreamOAuthProviderKimi {
+		metadata, _ := common.GetContextKeyType[*service.UpstreamOAuthTokenPayload](c, channelconstant.ContextKeyUpstreamOAuthMetadata)
+		req.Set("User-Agent", "new-api")
+		req.Set("X-Msh-Platform", "new-api")
+		req.Set("X-Msh-Version", "1")
+		if metadata != nil && metadata.DeviceID != "" {
+			req.Set("X-Msh-Device-Id", metadata.DeviceID)
+		}
+	}
 	return nil
 }
 

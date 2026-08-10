@@ -57,27 +57,15 @@ export function SidebarModulesCard() {
 
   const sectionDefs: SectionDef[] = [
     {
-      key: 'chat',
-      title: t('Chat Area'),
-      description: t('Playground and chat functions'),
+      key: 'console',
+      title: t('Console Area'),
+      description: t('Data management and log viewing'),
       modules: [
         {
           key: 'playground',
           title: t('Playground'),
           description: t('AI model testing environment'),
         },
-        {
-          key: 'chat',
-          title: t('Chat'),
-          description: t('Chat session management'),
-        },
-      ],
-    },
-    {
-      key: 'console',
-      title: t('Console Area'),
-      description: t('Data management and log viewing'),
-      modules: [
         {
           key: 'detail',
           title: t('Dashboard'),
@@ -129,7 +117,9 @@ export function SidebarModulesCard() {
       const res = await api.get('/api/user/self')
       if (res.data.success && res.data.data?.sidebar_modules) {
         const raw = res.data.data.sidebar_modules
-        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+        const parsed: SidebarModulesConfig =
+          typeof raw === 'string' ? JSON.parse(raw) : raw
+        delete parsed.chat
         setConfig(parsed)
       } else {
         const defaults: SidebarModulesConfig = {}

@@ -24,7 +24,14 @@ import type {
   SortingState,
   Row,
 } from '@tanstack/react-table'
-import { Eye, EyeOff } from 'lucide-react'
+import {
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Layers3,
+  Server,
+} from 'lucide-react'
 import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -59,6 +66,7 @@ import {
   isTagAggregateRow,
   getChannelTypeIcon,
   getChannelTypeLabel,
+  supportsUpstreamOAuth,
 } from '../lib'
 import type { Channel, ChannelSortBy } from '../types'
 import { ChannelCard } from './channel-card'
@@ -303,6 +311,15 @@ export function ChannelsTable() {
 
   const totalCount = data?.data?.total || 0
   const typeCounts = data?.data?.type_counts
+  const enabledOnPage = channels.filter(
+    (channel) =>
+      !isTagAggregateRow(channel) && channel.status === CHANNEL_STATUS.ENABLED
+  ).length
+  const oauthOnPage = channels.filter(
+    (channel) =>
+      !isTagAggregateRow(channel) && supportsUpstreamOAuth(channel.type)
+  ).length
+  const providerTypeCount = Object.keys(typeCounts || {}).length
 
   // Columns configuration
   const columns = useChannelsColumns({ enableSelection: batchMode })
@@ -408,90 +425,147 @@ export function ChannelsTable() {
   ]
 
   return (
-    <DataTablePage
-      table={table}
-      columns={columns}
-      isLoading={isLoading}
-      isFetching={isFetching}
-      emptyTitle={t('No Channels Found')}
-      emptyDescription={t(
-        'No channels available. Create your first channel to get started.'
-      )}
-      skeletonKeyPrefix='channel-skeleton'
-      enableCardView
-      viewModeStorageKey={CHANNELS_VIEW_MODE_STORAGE_KEY}
-      renderCard={(row, { isSelected }) => (
-        <ChannelCard row={row} isSelected={isSelected} />
-      )}
-      cardGridClassName='grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3'
-      applyHeaderSize
-      toolbarProps={{
-        searchPlaceholder: t('Filter by name, ID, or key...'),
-        searchDebounceMs: 500,
-        onReset: () => {
-          resetModelFilterInput()
-        },
-        additionalSearch: (
-          <Input
-            placeholder={t('Filter by model...')}
-            value={modelFilterInput}
-            onChange={onModelFilterInputChange}
-            onCompositionStart={onModelFilterCompositionStart}
-            onCompositionEnd={onModelFilterCompositionEnd}
-            className='w-full sm:w-[150px] lg:w-[180px]'
-          />
-        ),
-        filters: [
-          {
-            columnId: 'status',
-            title: t('Status'),
-            options: [...CHANNEL_STATUS_OPTIONS],
-            singleSelect: true,
-          },
-          {
-            columnId: 'type',
-            title: t('Type'),
-            options: typeFilterOptions,
-            singleSelect: true,
-          },
-          {
-            columnId: 'group',
-            title: t('Group'),
-            options: groupFilterOptions,
-            singleSelect: true,
-          },
-        ],
-        preActions: (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => setSensitiveVisible(!sensitiveVisible)}
-                  aria-label={sensitiveVisible ? t('Hide') : t('Show')}
-                  className='text-muted-foreground hover:text-foreground size-8'
-                />
-              }
-            >
-              {sensitiveVisible ? <Eye /> : <EyeOff />}
-            </TooltipTrigger>
-            <TooltipContent>
-              {sensitiveVisible ? t('Hide') : t('Show')}
-            </TooltipContent>
-          </Tooltip>
-        ),
-      }}
-      getRowClassName={(row, { isMobile }) => {
-        if (!isDisabledChannelRow(row.original)) {
-          return undefined
-        }
-        if (isMobile) {
-          return DISABLED_ROW_MOBILE
-        }
-        return DISABLED_ROW_DESKTOP
-      }}
-      bulkActions={batchMode ? <DataTableBulkActions table={table} /> : null}
-    />
+    <div className='flex min-h-0 flex-col gap-3 sm:gap-4'>
+      <div className='bg-card grid shrink-0 grid-cols-2 overflow-hidden rounded-xl border sm:grid-cols-4'>
+        <div className='border-b p-3 sm:border-r sm:border-b-0 sm:p-4'>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase'>
+            <Server className='size-4' aria-hidden='true' />
+            {t('Channels')}
+          </div>
+          <div className='mt-2 text-2xl font-semibold tabular-nums'>
+            {totalCount}
+          </div>
+          <div className='text-muted-foreground mt-1 text-xs'>
+            {t('Visible')}: {channels.length}
+          </div>
+        </div>
+        <div className='border-b p-3 sm:border-r sm:border-b-0 sm:p-4'>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase'>
+            <Layers3 className='size-4' aria-hidden='true' />
+            {t('Type')}
+          </div>
+          <div className='mt-2 text-2xl font-semibold tabular-nums'>
+            {providerTypeCount}
+          </div>
+          <div className='text-muted-foreground mt-1 text-xs'>
+            {t('Provider types')}
+          </div>
+        </div>
+        <div className='border-r p-3 sm:p-4'>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase'>
+            <CheckCircle2 className='size-4' aria-hidden='true' />
+            {t('Enabled')}
+          </div>
+          <div className='mt-2 text-2xl font-semibold tabular-nums'>
+            {enabledOnPage}
+          </div>
+          <div className='text-muted-foreground mt-1 text-xs'>
+            {t('On current page')}
+          </div>
+        </div>
+        <div className='p-3 sm:p-4'>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase'>
+            <KeyRound className='size-4' aria-hidden='true' />
+            {t('OAuth')}
+          </div>
+          <div className='mt-2 text-2xl font-semibold tabular-nums'>
+            {oauthOnPage}
+          </div>
+          <div className='text-muted-foreground mt-1 text-xs'>
+            {t('OAuth-capable channels')}
+          </div>
+        </div>
+      </div>
+
+      <div className='min-h-0 flex-1'>
+        <DataTablePage
+          table={table}
+          columns={columns}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          emptyTitle={t('No Channels Found')}
+          emptyDescription={t(
+            'No channels available. Create your first channel to get started.'
+          )}
+          skeletonKeyPrefix='channel-skeleton'
+          enableCardView
+          viewModeStorageKey={CHANNELS_VIEW_MODE_STORAGE_KEY}
+          renderCard={(row, { isSelected }) => (
+            <ChannelCard row={row} isSelected={isSelected} />
+          )}
+          cardGridClassName='grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3'
+          applyHeaderSize
+          toolbarProps={{
+            searchPlaceholder: t('Filter by name, ID, or key...'),
+            searchDebounceMs: 500,
+            onReset: () => {
+              resetModelFilterInput()
+            },
+            additionalSearch: (
+              <Input
+                placeholder={t('Filter by model...')}
+                value={modelFilterInput}
+                onChange={onModelFilterInputChange}
+                onCompositionStart={onModelFilterCompositionStart}
+                onCompositionEnd={onModelFilterCompositionEnd}
+                className='w-full sm:w-[150px] lg:w-[180px]'
+              />
+            ),
+            filters: [
+              {
+                columnId: 'status',
+                title: t('Status'),
+                options: [...CHANNEL_STATUS_OPTIONS],
+                singleSelect: true,
+              },
+              {
+                columnId: 'type',
+                title: t('Type'),
+                options: typeFilterOptions,
+                singleSelect: true,
+              },
+              {
+                columnId: 'group',
+                title: t('Group'),
+                options: groupFilterOptions,
+                singleSelect: true,
+              },
+            ],
+            preActions: (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => setSensitiveVisible(!sensitiveVisible)}
+                      aria-label={sensitiveVisible ? t('Hide') : t('Show')}
+                      className='text-muted-foreground hover:text-foreground size-8'
+                    />
+                  }
+                >
+                  {sensitiveVisible ? <Eye /> : <EyeOff />}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {sensitiveVisible ? t('Hide') : t('Show')}
+                </TooltipContent>
+              </Tooltip>
+            ),
+          }}
+          getRowClassName={(row, { isMobile }) => {
+            if (!isDisabledChannelRow(row.original)) {
+              return undefined
+            }
+            if (isMobile) {
+              return DISABLED_ROW_MOBILE
+            }
+            return DISABLED_ROW_DESKTOP
+          }}
+          bulkActions={
+            batchMode ? <DataTableBulkActions table={table} /> : null
+          }
+        />
+      </div>
+    </div>
   )
 }

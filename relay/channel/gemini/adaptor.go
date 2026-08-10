@@ -1,18 +1,22 @@
 package gemini
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
+	"github.com/QuantumNous/new-api/common"
+	rootconstant "github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/relay/channel"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/relay/constant"
 	"github.com/QuantumNous/new-api/relaykit/dto"
 	"github.com/QuantumNous/new-api/relaykit/relayconvert"
 	"github.com/QuantumNous/new-api/relaykit/types"
+	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting/model_setting"
 	"github.com/QuantumNous/new-api/setting/reasoning"
 
@@ -131,6 +135,14 @@ func (a *Adaptor) Init(info *relaycommon.RelayInfo) {
 }
 
 func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
+	oauthProvider := info.UpstreamOAuthProvider
+	if oauthProvider == "gemini-cli" || oauthProvider == "antigravity" {
+		action := "generateContent"
+		if info.IsStream {
+			action = "streamGenerateContent"
+		}
+		return fmt.Sprintf("https://cloudcode-pa.googleapis.com/v1internal:%s", action), nil
+	}
 
 	if model_setting.GetGeminiSettings().ThinkingAdapterEnabled &&
 		!model_setting.ShouldPreserveThinkingSuffix(info.OriginModelName) {
@@ -175,6 +187,14 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	channel.SetupApiRequestHeader(info, c, req)
+	oauthProvider := common.GetContextKeyString(c, rootconstant.ContextKeyUpstreamOAuthProvider)
+	if oauthProvider == "gemini-cli" || oauthProvider == "antigravity" {
+		req.Del("x-goog-api-key")
+		req.Set("Authorization", "Bearer "+info.ApiKey)
+		req.Set("Content-Type", "application/json")
+		req.Set("User-Agent", "gemini-cli/0.1")
+		return nil
+	}
 	req.Set("x-goog-api-key", info.ApiKey)
 	return nil
 }
@@ -251,10 +271,36 @@ func (a *Adaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relaycommo
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (any, error) {
+	provider := common.GetContextKeyString(c, rootconstant.ContextKeyUpstreamOAuthProvider)
+	if provider == "gemini-cli" || provider == "antigravity" {
+		raw, err := io.ReadAll(requestBody)
+		if err != nil {
+			return nil, err
+		}
+		var request any
+		if err = common.Unmarshal(raw, &request); err != nil {
+			return nil, err
+		}
+		metadata, _ := common.GetContextKeyType[*service.UpstreamOAuthTokenPayload](c, rootconstant.ContextKeyUpstreamOAuthMetadata)
+		project := ""
+		if metadata != nil {
+			project = metadata.ProjectID
+		}
+		wrapped, err := common.Marshal(map[string]any{"model": info.UpstreamModelName, "project": project, "request": request})
+		if err != nil {
+			return nil, err
+		}
+		requestBody = bytes.NewReader(wrapped)
+	}
 	return channel.DoApiRequest(a, c, info, requestBody)
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (usage any, err *types.NewAPIError) {
+	if info.UpstreamOAuthProvider == "gemini-cli" || info.UpstreamOAuthProvider == "antigravity" {
+		if unwrapErr := unwrapCodeAssistResponse(resp, info.IsStream); unwrapErr != nil {
+			return nil, types.NewError(unwrapErr, types.ErrorCodeBadResponseBody)
+		}
+	}
 	if info.RelayMode == constant.RelayModeResponses {
 		if info.IsStream {
 			return GeminiResponsesStreamHandler(c, info, resp)
@@ -291,6 +337,50 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycom
 		return GeminiChatHandler(c, info, resp)
 	}
 
+}
+
+func unwrapCodeAssistResponse(resp *http.Response, stream bool) error {
+	if resp == nil || resp.Body == nil {
+		return nil
+	}
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+	if stream {
+		lines := strings.Split(string(raw), "\n")
+		for i, line := range lines {
+			prefix := ""
+			data := strings.TrimSpace(line)
+			if strings.HasPrefix(data, "data:") {
+				prefix, data = "data: ", strings.TrimSpace(strings.TrimPrefix(data, "data:"))
+			}
+			if data == "" || data == "[DONE]" {
+				continue
+			}
+			if unwrapped, ok := unwrapCodeAssistJSON([]byte(data)); ok {
+				lines[i] = prefix + string(unwrapped)
+			}
+		}
+		raw = []byte(strings.Join(lines, "\n"))
+	} else if unwrapped, ok := unwrapCodeAssistJSON(raw); ok {
+		raw = unwrapped
+	}
+	resp.Body = io.NopCloser(bytes.NewReader(raw))
+	resp.ContentLength = int64(len(raw))
+	return nil
+}
+
+func unwrapCodeAssistJSON(raw []byte) ([]byte, bool) {
+	var envelope struct {
+		Response any `json:"response"`
+	}
+	if common.Unmarshal(raw, &envelope) != nil || envelope.Response == nil {
+		return raw, false
+	}
+	unwrapped, err := common.Marshal(envelope.Response)
+	return unwrapped, err == nil
 }
 
 func (a *Adaptor) GetModelList() []string {

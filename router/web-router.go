@@ -28,11 +28,31 @@ func SetWebRouter(router *gin.Engine, assets WebAssets) {
 	router.Use(static.Serve("/", frontendFS))
 	router.NoRoute(func(c *gin.Context) {
 		c.Set(middleware.RouteTagKey, "web")
-		if strings.HasPrefix(c.Request.RequestURI, "/v1") || strings.HasPrefix(c.Request.RequestURI, "/api") || strings.HasPrefix(c.Request.RequestURI, "/assets") {
+		requestPath := c.Request.URL.Path
+		if isMissingFrontendAsset(requestPath) {
+			c.Header("Cache-Control", "no-store")
+			c.Status(http.StatusNotFound)
+			return
+		}
+		if strings.HasPrefix(requestPath, "/v1") || strings.HasPrefix(requestPath, "/api") || strings.HasPrefix(requestPath, "/assets") {
 			controller.RelayNotFound(c)
 			return
 		}
-		c.Header("Cache-Control", "no-cache")
+		// The HTML shell contains content-hashed asset URLs. Do not cache it,
+		// otherwise a deployment can leave the browser pointing at removed chunks.
+		c.Header("Cache-Control", "no-store")
 		c.Data(http.StatusOK, "text/html; charset=utf-8", assets.IndexPage)
 	})
+}
+
+func isMissingFrontendAsset(path string) bool {
+	switch path {
+	case "/favicon.ico",
+		"/logo.png",
+		"/logo.svg",
+		"/logo-icon.svg",
+		"/logo-full.svg":
+		return true
+	}
+	return strings.HasPrefix(path, "/static/")
 }

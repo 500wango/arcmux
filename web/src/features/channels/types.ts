@@ -372,6 +372,7 @@ export interface ChannelFormData {
 // ============================================================================
 
 export interface AddChannelRequest {
+  auth_mode: 'api_key' | 'oauth'
   mode: 'single' | 'batch' | 'multi_to_single'
   multi_key_mode?: 'random' | 'polling'
   batch_add_set_key_prefix_2_name?: boolean

@@ -149,12 +149,12 @@ function LineSparkline(props: { values?: number[]; tone: StatCardTone }) {
   const gradientId = `stat-card-line-${rawGradientId.replaceAll(':', '')}`
   const paths = buildLineSparkline(props.values)
 
-  if (!paths) return <div className='h-8' aria-hidden='true' />
+  if (!paths) return <div className='h-9' aria-hidden='true' />
 
   return (
     <div
       className={cn(
-        'relative h-8 overflow-hidden rounded-lg',
+        'relative h-9 overflow-hidden rounded-xl',
         LINE_TONE_CLASSES[props.tone]
       )}
       aria-hidden='true'
@@ -166,7 +166,7 @@ function LineSparkline(props: { values?: number[]; tone: StatCardTone }) {
       >
         <defs>
           <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
-            <stop offset='0%' stopColor='currentColor' stopOpacity='0.24' />
+            <stop offset='0%' stopColor='currentColor' stopOpacity='0.35' />
             <stop offset='100%' stopColor='currentColor' stopOpacity='0' />
           </linearGradient>
         </defs>
@@ -177,7 +177,7 @@ function LineSparkline(props: { values?: number[]; tone: StatCardTone }) {
           stroke='currentColor'
           strokeLinecap='round'
           strokeLinejoin='round'
-          strokeWidth='2.25'
+          strokeWidth='2'
           vectorEffect='non-scaling-stroke'
         />
       </svg>
@@ -189,12 +189,12 @@ function BarSparkline(props: { values?: number[]; tone: StatCardTone }) {
   const sparkline = normalizeSparkline(props.values)
 
   return (
-    <div className='flex h-8 items-end gap-1' aria-hidden='true'>
+    <div className='flex h-9 items-end gap-1.5' aria-hidden='true'>
       {sparkline.map((bucket) => (
         <span
           key={bucket.position}
           className={cn(
-            'flex-1 rounded-t-sm bg-linear-to-t',
+            'flex-1 rounded-t-md bg-linear-to-t transition-all duration-300',
             bucket.height <= 0 && 'opacity-20',
             TONE_CLASSES[props.tone]
           )}

@@ -230,6 +230,10 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 
 		if newAPIError == nil {
 			relayInfo.LastError = nil
+			if credentialId, ok := common.GetContextKeyType[int64](c, constant.ContextKeyUpstreamCredentialId); ok && credentialId > 0 {
+				_ = model.MarkUpstreamCredentialSuccess(credentialId)
+				_ = model.ClearUpstreamCredentialModelFailure(credentialId, c.GetString("original_model"))
+			}
 			return
 		}
 
@@ -362,6 +366,19 @@ func shouldRetry(c *gin.Context, openaiErr *types.NewAPIError, retryTimes int) b
 
 func processChannelError(c *gin.Context, channelError types.ChannelError, err *types.NewAPIError) {
 	logger.LogError(c, fmt.Sprintf("channel error (channel #%d, status code: %d): %s", channelError.ChannelId, err.StatusCode, common.LocalLogPreview(err.Error())))
+	if credentialId, ok := common.GetContextKeyType[int64](c, constant.ContextKeyUpstreamCredentialId); ok && credentialId > 0 {
+		modelName := c.GetString("original_model")
+		if modelName != "" && (err.StatusCode == http.StatusBadRequest || err.StatusCode == http.StatusNotFound) && strings.Contains(strings.ToLower(err.Error()), "model") {
+			_ = model.MarkUpstreamCredentialModelFailure(credentialId, modelName, err.ErrorWithStatusCode(), time.Now().Add(10*time.Minute).Unix())
+			return
+		}
+		cooldown := time.Now().Add(time.Minute).Unix()
+		if err.StatusCode == http.StatusTooManyRequests {
+			cooldown = time.Now().Add(5 * time.Minute).Unix()
+		}
+		_ = model.MarkUpstreamCredentialFailure(credentialId, err.ErrorWithStatusCode(), cooldown)
+		return
+	}
 	// 不要使用context获取渠道信息，异步处理时可能会出现渠道信息不一致的情况
 	// do not use context to get channel info, there may be inconsistent channel info when processing asynchronously
 	if service.ShouldDisableChannel(err) && channelError.AutoBan {
@@ -556,6 +573,10 @@ func RelayTask(c *gin.Context) {
 
 		result, taskErr = relay.RelayTaskSubmit(c, relayInfo)
 		if taskErr == nil {
+			if credentialId, ok := common.GetContextKeyType[int64](c, constant.ContextKeyUpstreamCredentialId); ok && credentialId > 0 {
+				_ = model.MarkUpstreamCredentialSuccess(credentialId)
+				_ = model.ClearUpstreamCredentialModelFailure(credentialId, c.GetString("original_model"))
+			}
 			break
 		}
 

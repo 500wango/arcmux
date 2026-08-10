@@ -40,7 +40,7 @@ type UseChannelMutateFormParams = {
   currentRow?: Channel | null
   isEditing: boolean
   isMultiKeyChannel: boolean
-  onSuccess: () => void
+  onSuccess: (createdChannelId?: number) => void
 }
 
 const SENSITIVE_UPDATE_FIELDS = [
@@ -90,7 +90,9 @@ export function useChannelMutateForm(props: UseChannelMutateFormParams) {
   )
 
   return useMutation({
-    mutationFn: async (data: ChannelFormValues): Promise<string> => {
+    mutationFn: async (
+      data: ChannelFormValues
+    ): Promise<{ messageKey: string; createdChannelId?: number }> => {
       if (props.isEditing && props.currentRow) {
         const payload = transformFormDataToUpdatePayload(
           data,
@@ -122,7 +124,7 @@ export function useChannelMutateForm(props: UseChannelMutateFormParams) {
         if (!response.success) {
           throw new Error(response.message || t(ERROR_MESSAGES.UPDATE_FAILED))
         }
-        return SUCCESS_MESSAGES.UPDATED
+        return { messageKey: SUCCESS_MESSAGES.UPDATED }
       }
 
       const payload = transformFormDataToCreatePayload(data)
@@ -130,11 +132,14 @@ export function useChannelMutateForm(props: UseChannelMutateFormParams) {
       if (!response.success) {
         throw new Error(response.message || t(ERROR_MESSAGES.CREATE_FAILED))
       }
-      return SUCCESS_MESSAGES.CREATED
+      return {
+        messageKey: SUCCESS_MESSAGES.CREATED,
+        createdChannelId: response.data?.channel_ids[0],
+      }
     },
-    onSuccess: (messageKey) => {
-      toast.success(t(messageKey))
-      props.onSuccess()
+    onSuccess: (result) => {
+      toast.success(t(result.messageKey))
+      props.onSuccess(result.createdChannelId)
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error) || t(ERROR_MESSAGES.CREATE_FAILED))

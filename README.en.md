@@ -1,8 +1,8 @@
 <div align="center">
 
-![new-api](/web/public/logo.png)
+![ArcMux](/web/public/logo-icon.svg)
 
-# New API
+# ArcMux
 
 🍥 **Next-Generation Large Model Gateway and AI Asset Management System**
 
@@ -480,7 +480,7 @@ Welcome all forms of contribution!
 
 <div align="center">
 
-### 💖 Thank you for using New API
+### 💖 Thank you for using ArcMux
 
 If this project is helpful to you, welcome to give us a ⭐️ Star！
 
