@@ -17,18 +17,43 @@ jobs:
     name: Deploy to VPS
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-          port: ${{ secrets.VPS_PORT || 22 }}
-          script_stop: true
-          script: |
+      - name: Setup SSH Key & Execute Remote Deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USERNAME }}
+          PORT: ${{ secrets.VPS_PORT || 22 }}
+          DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/opt/arcmux' }}
+        run: |
+          set -e
+
+          # Ensure required secrets exist
+          if [ -z "$HOST" ] || [ -z "$USER" ] || [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::Missing required secrets: VPS_HOST, VPS_USERNAME, or VPS_SSH_KEY"
+            exit 1
+          fi
+
+          # Clean up HOST if it contains protocol or trailing whitespace
+          CLEAN_HOST=$(echo "$HOST" | sed -e 's|^https\?://||' -e 's|/.*$||' -e 's|:[0-9]*$||' | xargs)
+
+          echo "==> Preparing SSH environment for ${USER}@${CLEAN_HOST}:${PORT}..."
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Write SSH private key
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Run remote deployment script via native OpenSSH
+          ssh -i ~/.ssh/deploy_key \
+              -p "$PORT" \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o ConnectTimeout=15 \
+              "${USER}@${CLEAN_HOST}" << EOF
             set -e
-            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH || '/opt/arcmux' }}"
+            echo "==> Connected to VPS successfully!"
+            
             echo "==> Navigating to deploy directory: $DEPLOY_PATH"
             cd "$DEPLOY_PATH"
 
@@ -36,11 +61,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo "==> Building and restarting ArcMux production containers..."
+            echo "==> Rebuilding and restarting ArcMux production containers..."
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
 
             echo "==> Verifying API health status..."
-            for i in $(seq 1 30); do
+            for i in \$(seq 1 30); do
               if curl -fsS http://127.0.0.1:3000/api/status 2>/dev/null | grep -q '"success"[[:space:]]*:[[:space:]]*true'; then
                 echo "==> 🎉 ArcMux deployed and healthy!"
                 exit 0
@@ -48,3 +73,4 @@ jobs:
               sleep 2
             done
             echo "==> ⚠️ Healthcheck still initializing, check logs with 'arcmux logs'"
+          EOF
