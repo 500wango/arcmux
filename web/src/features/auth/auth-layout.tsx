@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 import { Link } from '@tanstack/react-router'
+import { CheckCircle2, ShieldCheck, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Skeleton } from '@/components/ui/skeleton'
@@ -31,84 +32,108 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className='relative grid min-h-svh max-w-none md:grid-cols-2'>
       {/* Brand panel — visible on md+ */}
-      <div className='bg-muted/30 relative hidden flex-col justify-between p-10 md:flex'>
-        <Link
-          to='/'
-          className='flex items-center gap-2 transition-opacity hover:opacity-80'
-        >
-          <div className='relative h-8 w-8'>
-            {loading ? (
-              <Skeleton className='absolute inset-0 rounded-full' />
-            ) : (
-              <img
-                src={logo}
-                alt={t('Logo')}
-                className='h-8 w-8 rounded-full object-cover'
-              />
-            )}
-          </div>
-          {loading ? (
-            <Skeleton className='h-6 w-24' />
-          ) : (
-            <h1 className='text-xl font-medium'>{systemName}</h1>
-          )}
-        </Link>
+      <div className='relative hidden flex-col justify-between overflow-hidden border-r border-border/70 bg-zinc-950 p-10 text-zinc-100 md:flex'>
+        {/* Subtle engineering grid */}
+        <div
+          aria-hidden
+          className='pointer-events-none absolute inset-0 opacity-10'
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
 
-        <div className='flex-1 flex flex-col justify-center px-8'>
-          <div className='mx-auto max-w-sm'>
-            <div className='text-primary mb-6 flex size-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/5'>
-              <svg
-                className='size-8'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth={1.5}
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M12 2L2 7l10 5 10-5-10-5z' />
-                <path d='M2 17l10 5 10-5' />
-                <path d='M2 12l10 5 10-5' />
-              </svg>
-            </div>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              {systemName}
-            </h2>
-            <p className='text-muted-foreground mt-3 text-sm leading-relaxed'>
-              {t(
-                'Unified AI API gateway. Manage, monitor, and route API requests across multiple AI providers.'
+        {/* Top brand header */}
+        <div className='relative z-10'>
+          <Link
+            to='/'
+            className='flex items-center gap-3 transition-opacity hover:opacity-85'
+          >
+            <div className='relative size-8 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900'>
+              {loading ? (
+                <Skeleton className='size-full' />
+              ) : (
+                <img
+                  src={logo || '/logo-icon.svg'}
+                  alt={t('Logo')}
+                  className='size-full object-cover'
+                />
               )}
-            </p>
+            </div>
+            {loading ? (
+              <Skeleton className='h-6 w-24' />
+            ) : (
+              <span className='font-mono text-base font-bold tracking-tight text-white'>
+                {systemName || 'ArcMux'}
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* Center content */}
+        <div className='relative z-10 my-auto max-w-md py-12'>
+          <div className='mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-medium text-emerald-400'>
+            <span className='size-1.5 animate-pulse rounded-full bg-emerald-400' />
+            <span>{t('GATEWAY ENGINE OPERATIONAL')}</span>
+          </div>
+
+          <h2 className='text-3xl font-extrabold tracking-tight text-white md:text-4xl'>
+            {t('High-Throughput AI Multiplexer')}
+          </h2>
+
+          <p className='text-zinc-400 mt-4 text-sm leading-relaxed'>
+            {t(
+              'Unified AI API gateway. Route, load-balance, and scale across OpenAI, Claude, Gemini, and DeepSeek with sub-millisecond dispatching.'
+            )}
+          </p>
+
+          {/* Architecture telemetry badges */}
+          <div className='mt-8 space-y-3 font-mono text-xs text-zinc-300'>
+            <div className='flex items-center gap-2.5 rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-2.5'>
+              <ShieldCheck className='size-4 text-emerald-400' />
+              <span>{t('Sub-millisecond failover & circuit breaking')}</span>
+            </div>
+            <div className='flex items-center gap-2.5 rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-2.5'>
+              <Zap className='size-4 text-amber-400' />
+              <span>{t('Unbuffered SSE stream acceleration')}</span>
+            </div>
+            <div className='flex items-center gap-2.5 rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-2.5'>
+              <CheckCircle2 className='size-4 text-primary' />
+              <span>{t('Zero SDK refactoring (OpenAI & Claude compatible)')}</span>
+            </div>
           </div>
         </div>
 
-        <p className='text-muted-foreground/50 text-xs'>
-          &copy; {new Date().getFullYear()} {systemName}
-        </p>
+        {/* Bottom copyright & spec */}
+        <div className='relative z-10 flex items-center justify-between border-t border-zinc-800/80 pt-4 font-mono text-xs text-zinc-500'>
+          <span>&copy; {new Date().getFullYear()} {systemName || 'ArcMux'}</span>
+          <span>v1.0.0-PROD</span>
+        </div>
       </div>
 
       {/* Form panel */}
-      <div className='flex items-center justify-center px-4'>
+      <div className='relative flex items-center justify-center px-4'>
         {/* Mobile logo */}
         <Link
           to='/'
           className='absolute top-4 left-4 z-10 flex items-center gap-2 transition-opacity hover:opacity-80 md:hidden'
         >
-          <div className='relative h-8 w-8'>
+          <div className='relative size-8 overflow-hidden rounded-lg'>
             {loading ? (
-              <Skeleton className='absolute inset-0 rounded-full' />
+              <Skeleton className='size-full' />
             ) : (
               <img
-                src={logo}
+                src={logo || '/logo-icon.svg'}
                 alt={t('Logo')}
-                className='h-8 w-8 rounded-full object-cover'
+                className='size-full object-cover'
               />
             )}
           </div>
           {loading ? (
             <Skeleton className='h-6 w-24' />
           ) : (
-            <h1 className='text-xl font-medium'>{systemName}</h1>
+            <h1 className='text-lg font-bold'>{systemName || 'ArcMux'}</h1>
           )}
         </Link>
 

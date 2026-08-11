@@ -219,13 +219,17 @@ export function Footer(props: FooterProps) {
                 alt={displayName}
                 className='size-7 rounded-lg object-contain'
               />
-              <span className='text-sm font-semibold tracking-tight'>
+              <span className='font-mono text-sm font-bold tracking-tight'>
                 {displayName}
               </span>
             </Link>
-            <p className='text-muted-foreground/60 mt-3 max-w-[200px] text-xs leading-relaxed'>
-              {t('Powerful API Management Platform')}
+            <p className='text-muted-foreground mt-2 max-w-[260px] text-xs leading-relaxed'>
+              {t('High-Throughput AI Multiplexer & Gateway Engine.')}
             </p>
+            <div className='mt-3.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] font-medium text-emerald-600 dark:text-emerald-400'>
+              <span className='size-1.5 animate-pulse rounded-full bg-emerald-500' />
+              <span>ALL SYSTEMS OPERATIONAL</span>
+            </div>
           </div>
 
           {/* Links columns */}
@@ -233,7 +237,7 @@ export function Footer(props: FooterProps) {
             <div className='grid grid-cols-3 gap-8 md:gap-16'>
               {displayColumns.map((column, index) => (
                 <div key={index}>
-                  <p className='text-muted-foreground/50 mb-3 text-xs font-medium tracking-wider uppercase'>
+                  <p className='text-muted-foreground/50 mb-3 font-mono text-xs font-medium tracking-wider uppercase'>
                     {t(column.title)}
                   </p>
                   <ul className='space-y-2.5'>
@@ -250,8 +254,8 @@ export function Footer(props: FooterProps) {
         </div>
 
         {/* Bottom bar: copyright + legal + project attribution */}
-        <div className='border-border/30 mt-10 flex flex-col items-center justify-between gap-x-3 gap-y-2 border-t pt-6 sm:flex-row'>
-          <div className='text-muted-foreground/40 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:justify-start'>
+        <div className='border-border/40 mt-10 flex flex-col items-center justify-between gap-x-3 gap-y-2 border-t pt-6 font-mono text-xs sm:flex-row'>
+          <div className='text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:justify-start'>
             <span>
               &copy; {currentYear} {displayName}.{' '}
               {props.copyright ?? t('footer.defaultCopyright')}
