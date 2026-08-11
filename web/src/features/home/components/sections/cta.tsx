@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 import { Link } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, KeyRound, Terminal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
@@ -34,59 +34,58 @@ export function CTA(props: CTAProps) {
   }
 
   return (
-    <section className='relative z-10 overflow-hidden px-6 py-24 md:py-32'>
-      {/* Ambient background aura */}
-      <div
-        aria-hidden
-        className='pointer-events-none absolute inset-0 -z-10 opacity-20 dark:opacity-15'
-        style={{
-          background: [
-            'radial-gradient(ellipse 60% 60% at 50% 50%, color-mix(in oklch, var(--primary) 40%, transparent) 0%, transparent 70%)',
-            'radial-gradient(ellipse 40% 40% at 75% 60%, color-mix(in oklch, var(--chart-2) 30%, transparent) 0%, transparent 70%)',
-          ].join(', '),
-        }}
-      />
-
+    <section className='relative z-10 overflow-hidden px-6 py-20 md:py-28'>
       <div className='mx-auto max-w-6xl'>
         <AnimateInView
-          className='tech-glass-card relative overflow-hidden rounded-3xl p-10 text-center shadow-2xl md:p-16'
+          className='relative overflow-hidden rounded-3xl border border-border/80 bg-zinc-950/90 p-8 text-center text-zinc-100 shadow-2xl backdrop-blur-xl md:p-14'
           animation='scale-in'
         >
-          {/* Decorative ambient radial glow inside card */}
+          {/* Subtle micro-grid accent */}
           <div
             aria-hidden
-            className='pointer-events-none absolute -top-24 -right-24 size-96 rounded-full opacity-30 blur-3xl'
+            className='pointer-events-none absolute inset-0 opacity-5'
             style={{
-              background:
-                'radial-gradient(circle, color-mix(in oklch, var(--primary) 70%, transparent) 0%, transparent 70%)',
+              backgroundImage:
+                'radial-gradient(circle, currentColor 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
             }}
           />
 
-          <h2 className='relative text-3xl leading-tight font-extrabold tracking-tight md:text-5xl'>
-            {t('Ready to unify')}
-            <br />
-            <span className='bg-gradient-to-r from-primary via-amber-500 to-yellow-500 bg-clip-text text-transparent drop-shadow-xs'>
-              {t('your AI stack?')}
-            </span>
-          </h2>
-          <p className='text-muted-foreground relative mx-auto mt-6 max-w-md text-base leading-relaxed'>
-            {t('Spin up your own gateway and route every AI request through a single control plane.')}
-          </p>
-          <div className='relative mt-10 flex items-center justify-center gap-4'>
-            <Button
-              className='group h-11 rounded-xl px-6 font-semibold shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/25'
-              render={<Link to='/sign-up' />}
-            >
-              {t('Get Started')}
-              <ArrowRight className='ml-1.5 size-4 transition-transform duration-200 group-hover:translate-x-1' />
-            </Button>
-            <Button
-              variant='outline'
-              className='h-11 rounded-xl border-border/60 bg-background/60 px-6 font-medium backdrop-blur-md transition-all duration-200 hover:border-border hover:bg-muted/60'
-              render={<Link to='/pricing' />}
-            >
-              {t('View Pricing')}
-            </Button>
+          <div className='relative z-10 mx-auto max-w-2xl'>
+            <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold text-emerald-400'>
+              <Terminal className='size-3.5' />
+              <span>{t('Instant Integration in 60s')}</span>
+            </div>
+
+            <h2 className='text-3xl font-extrabold tracking-tight md:text-5xl'>
+              {t('Ready to scale with zero vendor lock-in?')}
+            </h2>
+
+            <p className='text-zinc-400 mt-4 text-sm leading-relaxed md:text-base'>
+              {t(
+                'Generate your API token now to start routing OpenAI, Claude, Gemini, and DeepSeek requests with unified billing and 40% standard pricing.'
+              )}
+            </p>
+
+            <div className='mt-8 flex flex-wrap items-center justify-center gap-3.5'>
+              <Button
+                size='lg'
+                className='group gap-2 rounded-xl px-6 text-sm font-semibold shadow-md transition-all hover:shadow-lg hover:shadow-primary/20'
+                render={<Link to='/sign-up' />}
+              >
+                <KeyRound className='size-4' />
+                {t('Get Started Free')}
+                <ArrowRight className='size-4 transition-transform group-hover:translate-x-1' />
+              </Button>
+              <Button
+                size='lg'
+                variant='outline'
+                className='rounded-xl border-zinc-800 bg-zinc-900/80 px-5 text-sm font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white'
+                render={<Link to='/pricing' />}
+              >
+                {t('Explore Models & Rates')}
+              </Button>
+            </div>
           </div>
         </AnimateInView>
       </div>

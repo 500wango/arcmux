@@ -14,8 +14,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+export { BentoGrid } from './bento-grid'
+export { CodeIntegrationTabs } from './code-integration-tabs'
+export { MeshRouterVisualizer } from './mesh-router-visualizer'
+export { ProviderMatrix } from './provider-matrix'
 export { CTA } from './sections/cta'
-export { Features } from './sections/features'
 export { Hero } from './sections/hero'
-export { HowItWorks } from './sections/how-it-works'
-export { Stats } from './sections/stats'

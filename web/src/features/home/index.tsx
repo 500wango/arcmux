@@ -14,6 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+import { Code2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -24,7 +25,13 @@ import { useTheme } from '@/context/theme-provider'
 import { isLikelyHtml } from '@/lib/content-format'
 import { useAuthStore } from '@/stores/auth-store'
 
-import { CTA, Features, Hero, HowItWorks, Stats } from './components'
+import {
+  BentoGrid,
+  CodeIntegrationTabs,
+  CTA,
+  Hero,
+  ProviderMatrix,
+} from './components'
 import { useHomePageContent } from './hooks'
 
 export function Home() {
@@ -70,14 +77,6 @@ export function Home() {
     if (isUrl) {
       return (
         <PublicLayout showMainContainer={false}>
-          {/*
-            allow-top-navigation-by-user-activation: the custom home page URL is
-            admin-configured (trusted); this lets its target="_top" nav/menu links
-            navigate the top-level window on user click. The default sandbox blocks
-            this on desktop, while some mobile browsers allow it via allow-popups,
-            causing inconsistent behavior. This token only permits user-activated
-            top-level navigation and does NOT grant same-origin access.
-          */}
           <iframe
             ref={iframeRef}
             src={content}
@@ -120,11 +119,43 @@ export function Home() {
 
   return (
     <PublicLayout showMainContainer={false}>
+      {/* 1. Hero Section with Interactive Mesh Router Simulation */}
       <Hero isAuthenticated={isAuthenticated} />
-      <Stats />
-      <Features />
-      <HowItWorks />
+
+      {/* 2. Supported Models & Upstream Provider Matrix */}
+      <ProviderMatrix />
+
+      {/* 3. Hardened Engine Architecture (Bento Grid) */}
+      <BentoGrid />
+
+      {/* 4. Multi-Language Developer Code Integration Section */}
+      <section className='relative z-10 px-6 py-20 md:py-28'>
+        <div className='mx-auto max-w-6xl'>
+          <div className='mb-12 text-center'>
+            <div className='mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 font-mono text-xs font-semibold text-primary'>
+              <Code2 className='size-3.5' />
+              <span>{t('Developer First')}</span>
+            </div>
+            <h2 className='text-3xl font-extrabold tracking-tight md:text-4xl'>
+              {t('Drop-in Compatible with Every SDK')}
+            </h2>
+            <p className='text-muted-foreground mx-auto mt-3 max-w-2xl text-sm leading-relaxed md:text-base'>
+              {t(
+                'Only change the Base URL and API key. Works directly with official OpenAI, Anthropic, LangChain, and LlamaIndex packages.'
+              )}
+            </p>
+          </div>
+
+          <div className='mx-auto max-w-4xl'>
+            <CodeIntegrationTabs />
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Minimalist Call To Action */}
       <CTA isAuthenticated={isAuthenticated} />
+
+      {/* 6. Footer */}
       <Footer />
     </PublicLayout>
   )
