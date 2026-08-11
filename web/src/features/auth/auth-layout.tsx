@@ -48,23 +48,23 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <div className='relative z-10'>
           <Link
             to='/'
-            className='flex items-center gap-3 transition-opacity hover:opacity-85'
+            className='flex items-center gap-3.5 transition-opacity hover:opacity-85'
           >
-            <div className='relative size-8 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900'>
+            <div className='relative size-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-xs'>
               {loading ? (
                 <Skeleton className='size-full' />
               ) : (
                 <img
                   src={logo || '/logo-icon.svg'}
                   alt={t('Logo')}
-                  className='size-full object-cover'
+                  className='size-full object-contain'
                 />
               )}
             </div>
             {loading ? (
               <Skeleton className='h-6 w-24' />
             ) : (
-              <span className='font-mono text-base font-bold tracking-tight text-white'>
+              <span className='font-mono text-lg font-bold tracking-tight text-white'>
                 {systemName || 'ArcMux'}
               </span>
             )}
@@ -117,23 +117,23 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         {/* Mobile logo */}
         <Link
           to='/'
-          className='absolute top-4 left-4 z-10 flex items-center gap-2 transition-opacity hover:opacity-80 md:hidden'
+          className='absolute top-4 left-4 z-10 flex items-center gap-2.5 transition-opacity hover:opacity-80 md:hidden'
         >
-          <div className='relative size-8 overflow-hidden rounded-lg'>
+          <div className='relative size-9 overflow-hidden rounded-xl border border-border/70 bg-card/60'>
             {loading ? (
               <Skeleton className='size-full' />
             ) : (
               <img
                 src={logo || '/logo-icon.svg'}
                 alt={t('Logo')}
-                className='size-full object-cover'
+                className='size-full object-contain'
               />
             )}
           </div>
           {loading ? (
             <Skeleton className='h-6 w-24' />
           ) : (
-            <h1 className='text-lg font-bold'>{systemName || 'ArcMux'}</h1>
+            <h1 className='font-mono text-base font-bold'>{systemName || 'ArcMux'}</h1>
           )}
         </Link>
 

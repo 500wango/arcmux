@@ -59,18 +59,18 @@ export function SystemBrand(props: SystemBrandProps) {
         to='/'
         aria-label={t('Go to home')}
         className={cn(
-          'text-foreground inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-sm font-medium transition-colors outline-none select-none',
+          'text-foreground inline-flex h-8 items-center gap-2 rounded-lg px-2 text-sm font-semibold transition-colors outline-none select-none',
           'hover:bg-accent focus-visible:ring-ring/40 focus-visible:ring-2'
         )}
       >
-        <div className='flex size-5 items-center justify-center overflow-hidden rounded-md ring-1 ring-primary/20'>
+        <div className='flex size-7 items-center justify-center overflow-hidden rounded-lg'>
           <img
             src={logo}
             alt={t('Logo')}
-            className='size-full rounded-md object-cover'
+            className='size-full rounded-lg object-contain'
           />
         </div>
-        <span className='max-w-[12rem] truncate'>{name}</span>
+        <span className='max-w-[12rem] truncate font-mono'>{name}</span>
       </Link>
     )
   }
@@ -83,16 +83,16 @@ export function SystemBrand(props: SystemBrandProps) {
           className='hover:text-sidebar-foreground active:text-sidebar-foreground cursor-default hover:bg-transparent active:bg-transparent'
           render={<div />}
         >
-          <div className='flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg'>
+          <div className='flex aspect-square size-9 items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-muted/30'>
             <img
               src={logo}
               alt={t('Logo')}
-              className='size-full rounded-lg object-cover'
+              className='size-full rounded-xl object-contain'
             />
           </div>
           <div className='grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden'>
-            <span className='truncate font-semibold'>{name}</span>
-            <span className='truncate text-xs'>{version}</span>
+            <span className='truncate font-mono font-bold'>{name}</span>
+            <span className='truncate text-xs font-mono text-muted-foreground'>{version}</span>
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>

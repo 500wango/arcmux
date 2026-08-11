@@ -213,13 +213,13 @@ export function Footer(props: FooterProps) {
         <div className='flex flex-col justify-between gap-10 md:flex-row md:gap-16'>
           {/* Brand column */}
           <div className='shrink-0'>
-            <Link to='/' className='group flex items-center gap-2.5'>
+            <Link to='/' className='group flex items-center gap-3'>
               <img
                 src={displayLogo}
                 alt={displayName}
-                className='size-7 rounded-lg object-contain'
+                className='size-9 rounded-xl object-contain transition-transform group-hover:scale-105'
               />
-              <span className='font-mono text-sm font-bold tracking-tight'>
+              <span className='font-mono text-base font-bold tracking-tight text-foreground'>
                 {displayName}
               </span>
             </Link>
