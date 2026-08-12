@@ -5,7 +5,18 @@ import (
 	"testing"
 
 	"github.com/500wango/arcmux/pkg/billingexpr"
+	"github.com/stretchr/testify/require"
 )
+
+func TestRunExprRejectsNegativeAndNonFiniteBillingResults(t *testing.T) {
+	for _, exprStr := range []string{
+		`tier("negative", p - 100)`,
+		`tier("infinite", p / 0)`,
+	} {
+		_, _, err := billingexpr.RunExpr(exprStr, billingexpr.TokenParams{})
+		require.Error(t, err)
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Claude-style: fixed tiers, input > 200K changes both input & output price

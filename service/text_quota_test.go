@@ -517,6 +517,16 @@ func TestCalculateTextQuotaSummarySeparatesOpenRouterCacheCreationFromPromptBill
 	require.Equal(t, 3012, summary.Quota)
 }
 
+func TestCalcOpenRouterCacheCreateTokensSaturatesExtremeCost(t *testing.T) {
+	usage := dto.Usage{Cost: math.MaxFloat64}
+	priceData := hosttypes.PriceData{
+		ModelRatio:         1,
+		CacheCreationRatio: 1.25,
+	}
+
+	assert.Equal(t, common.MaxQuota, CalcOpenRouterCacheCreateTokens(usage, priceData))
+}
+
 func TestCalculateTextQuotaSummaryKeepsPrePRClaudeOpenRouterBilling(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()

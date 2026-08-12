@@ -2,7 +2,10 @@ package billing_setting
 
 import (
 	"fmt"
+	"math"
+	"strings"
 
+	"github.com/500wango/arcmux/common"
 	"github.com/500wango/arcmux/pkg/billingexpr"
 	"github.com/500wango/arcmux/setting/config"
 	"github.com/samber/lo"
@@ -74,6 +77,22 @@ func SmokeTestExpr(exprStr string) error {
 	return smokeTestExpr(exprStr)
 }
 
+func ValidateBillingExprJSON(raw string) error {
+	expressions := map[string]string{}
+	if err := common.UnmarshalJsonStr(raw, &expressions); err != nil {
+		return fmt.Errorf("invalid billing expression map: %w", err)
+	}
+	for modelName, exprStr := range expressions {
+		if strings.TrimSpace(modelName) == "" || strings.TrimSpace(exprStr) == "" {
+			return fmt.Errorf("billing expression model and value cannot be empty")
+		}
+		if err := SmokeTestExpr(exprStr); err != nil {
+			return fmt.Errorf("model %s: %w", modelName, err)
+		}
+	}
+	return nil
+}
+
 func smokeTestExpr(exprStr string) error {
 	vectors := []billingexpr.TokenParams{
 		{P: 0, C: 0, Len: 0},
@@ -97,8 +116,8 @@ func smokeTestExpr(exprStr string) error {
 			if err != nil {
 				return fmt.Errorf("vector {p=%g, c=%g}: run failed: %w", v.P, v.C, err)
 			}
-			if result < 0 {
-				return fmt.Errorf("vector {p=%g, c=%g}: result %f < 0", v.P, v.C, result)
+			if result < 0 || math.IsNaN(result) || math.IsInf(result, 0) {
+				return fmt.Errorf("vector {p=%g, c=%g}: invalid result %g", v.P, v.C, result)
 			}
 		}
 	}

@@ -82,9 +82,6 @@ func normalizeWaffoPancakeTopUpAmount(amount int64) int64 {
 	normalized := decimal.NewFromInt(amount).
 		Div(decimal.NewFromFloat(common.QuotaPerUnit)).
 		IntPart()
-	if normalized < 1 {
-		return 1
-	}
 	return normalized
 }
 
@@ -370,11 +367,21 @@ func RequestWaffoPancakePay(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值金额过低"})
 		return
 	}
+	normalizedAmount := normalizeWaffoPancakeTopUpAmount(req.Amount)
+	if normalizedAmount <= 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值额度无效"})
+		return
+	}
+	if _, err := common.QuotaFromDecimalStrict(decimal.NewFromInt(normalizedAmount).
+		Mul(decimal.NewFromFloat(common.QuotaPerUnit))); err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值额度超出范围"})
+		return
+	}
 
 	tradeNo := fmt.Sprintf("WAFFO_PANCAKE-%d-%d-%s", id, time.Now().UnixMilli(), randstr.String(6))
 	topUp := &model.TopUp{
 		UserId:          id,
-		Amount:          normalizeWaffoPancakeTopUpAmount(req.Amount),
+		Amount:          normalizedAmount,
 		Money:           payMoney,
 		TradeNo:         tradeNo,
 		PaymentMethod:   model.PaymentMethodWaffoPancake,
@@ -517,7 +524,7 @@ func WaffoPancakeWebhook(c *gin.Context) {
 	LockOrder(tradeNo)
 	defer UnlockOrder(tradeNo)
 
-	if err := model.RechargeWaffoPancake(tradeNo); err != nil {
+	if err := model.RechargeWaffoPancake(tradeNo, event.Data.Amount); err != nil {
 		logger.LogError(c.Request.Context(), fmt.Sprintf("Waffo Pancake 充值处理失败 trade_no=%s event_id=%s order_id=%s client_ip=%s error=%q", tradeNo, event.ID, event.Data.OrderID, c.ClientIP(), err.Error()))
 		c.String(http.StatusInternalServerError, "retry")
 		return

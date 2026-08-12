@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"sync"
 	"testing"
 
 	"github.com/500wango/arcmux/common"
@@ -11,6 +12,78 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
+
+func TestPreConsumeUserQuotaIsAtomic(t *testing.T) {
+	setupUserUpdateTestState(t)
+
+	user := User{Id: 10, Username: "atomic-wallet", Password: "password", Quota: 100}
+	require.NoError(t, DB.Create(&user).Error)
+
+	errs := make(chan error, 2)
+	var wg sync.WaitGroup
+	for range 2 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- PreConsumeUserQuota(user.Id, 80)
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	var success, insufficient int
+	for err := range errs {
+		switch {
+		case err == nil:
+			success++
+		case errors.Is(err, ErrInsufficientQuota):
+			insufficient++
+		default:
+			require.NoError(t, err)
+		}
+	}
+	assert.Equal(t, 1, success)
+	assert.Equal(t, 1, insufficient)
+	quota, err := GetUserQuota(user.Id, true)
+	require.NoError(t, err)
+	assert.Equal(t, 20, quota)
+}
+
+func TestPreConsumeTokenQuotaIsAtomic(t *testing.T) {
+	setupUserUpdateTestState(t)
+
+	token := Token{Id: 11, UserId: 10, Key: "atomic-token", RemainQuota: 100}
+	require.NoError(t, DB.Create(&token).Error)
+
+	errs := make(chan error, 2)
+	var wg sync.WaitGroup
+	for range 2 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- PreConsumeTokenQuota(token.Id, token.Key, 80)
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	var success, insufficient int
+	for err := range errs {
+		switch {
+		case err == nil:
+			success++
+		case errors.Is(err, ErrInsufficientQuota):
+			insufficient++
+		default:
+			require.NoError(t, err)
+		}
+	}
+	assert.Equal(t, 1, success)
+	assert.Equal(t, 1, insufficient)
+	require.NoError(t, DB.First(&token, token.Id).Error)
+	assert.Equal(t, 20, token.RemainQuota)
+	assert.Equal(t, 80, token.UsedQuota)
+}
 
 func setupUserUpdateTestState(t *testing.T) {
 	t.Helper()

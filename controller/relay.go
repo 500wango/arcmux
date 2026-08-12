@@ -600,10 +600,17 @@ func RelayTask(c *gin.Context) {
 
 	// ── 成功：结算 + 日志 + 插入任务 ──
 	if taskErr == nil {
+		persistedQuota := result.Quota
 		if settleErr := service.SettleBilling(c, relayInfo, result.Quota); settleErr != nil {
 			common.SysError("settle task billing error: " + settleErr.Error())
+			if relayInfo.Billing != nil {
+				persistedQuota = relayInfo.Billing.GetPreConsumedQuota()
+			} else {
+				persistedQuota = relayInfo.FinalPreConsumedQuota
+			}
+		} else {
+			service.LogTaskConsumption(c, relayInfo, result.Quota)
 		}
-		service.LogTaskConsumption(c, relayInfo)
 
 		task := model.InitTask(result.Platform, relayInfo)
 		task.PrivateData.UpstreamTaskID = result.UpstreamTaskID
@@ -619,7 +626,9 @@ func RelayTask(c *gin.Context) {
 			OriginModelName: relayInfo.OriginModelName,
 			PerCallBilling:  common.StringsContains(constant.TaskPricePatches, relayInfo.OriginModelName) || relayInfo.PriceData.UsePrice,
 		}
-		task.Quota = result.Quota
+		// A failed settlement keeps the actual pre-consume marker so polling or
+		// reconciliation can safely settle or refund it later.
+		task.Quota = persistedQuota
 		task.Data = result.TaskData
 		task.Action = relayInfo.Action
 		if insertErr := task.Insert(); insertErr != nil {

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/500wango/arcmux/i18n"
 	"github.com/500wango/arcmux/model"
 	"github.com/500wango/arcmux/setting"
+	"github.com/500wango/arcmux/setting/billing_setting"
 	"github.com/500wango/arcmux/setting/console_setting"
 	"github.com/500wango/arcmux/setting/model_setting"
 	"github.com/500wango/arcmux/setting/operation_setting"
@@ -234,6 +236,18 @@ func UpdateOption(c *gin.Context) {
 				"success": false,
 				"message": err.Error(),
 			})
+			return
+		}
+	case "billing_setting.billing_expr":
+		err = billing_setting.ValidateBillingExprJSON(option.Value.(string))
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+	case "QuotaPerUnit":
+		quotaPerUnit, parseErr := strconv.ParseFloat(strings.TrimSpace(option.Value.(string)), 64)
+		if parseErr != nil || quotaPerUnit <= 0 || quotaPerUnit > float64(common.MaxQuota) || math.IsNaN(quotaPerUnit) || math.IsInf(quotaPerUnit, 0) {
+			c.JSON(http.StatusOK, gin.H{"success": false, "message": fmt.Sprintf("QuotaPerUnit must be a finite number between 0 and %d", common.MaxQuota)})
 			return
 		}
 	case "gemini.safety_settings":

@@ -1,8 +1,10 @@
 package service
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/500wango/arcmux/model"
 	"github.com/500wango/arcmux/pkg/billingexpr"
 	relaycommon "github.com/500wango/arcmux/relay/common"
 	"github.com/500wango/arcmux/relaykit/dto"
@@ -150,6 +152,9 @@ func PrepareTieredBillingForSelectedGroup(c *gin.Context, relayInfo *relaycommon
 		return PreConsumeBilling(c, snap.EstimatedQuotaAfterGroup, relayInfo)
 	}
 	if err := relayInfo.Billing.Reserve(snap.EstimatedQuotaAfterGroup); err != nil {
+		if errors.Is(err, model.ErrInsufficientQuota) {
+			return types.NewErrorWithStatusCode(err, types.ErrorCodeInsufficientUserQuota, http.StatusForbidden, types.ErrOptionWithSkipRetry(), types.ErrOptionWithNoRecordErrorLog())
+		}
 		return types.NewError(err, types.ErrorCodeUpdateDataError, types.ErrOptionWithSkipRetry())
 	}
 	relayInfo.FinalPreConsumedQuota = relayInfo.Billing.GetPreConsumedQuota()

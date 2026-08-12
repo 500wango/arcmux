@@ -1,6 +1,11 @@
 package billingexpr
 
-import "github.com/500wango/arcmux/common"
+import (
+	"fmt"
+	"math"
+
+	"github.com/500wango/arcmux/common"
+)
 
 // quotaConversion converts raw expression output to quota based on the
 // expression version. This is the central dispatch point for future versions
@@ -19,6 +24,15 @@ func ComputeTieredQuota(snap *BillingSnapshot, params TokenParams) (TieredResult
 }
 
 func ComputeTieredQuotaWithRequest(snap *BillingSnapshot, params TokenParams, request RequestInput) (TieredResult, error) {
+	if snap == nil {
+		return TieredResult{}, fmt.Errorf("billing snapshot is nil")
+	}
+	if snap.QuotaPerUnit <= 0 || math.IsNaN(snap.QuotaPerUnit) || math.IsInf(snap.QuotaPerUnit, 0) {
+		return TieredResult{}, fmt.Errorf("invalid quota per unit: %g", snap.QuotaPerUnit)
+	}
+	if snap.GroupRatio < 0 || math.IsNaN(snap.GroupRatio) || math.IsInf(snap.GroupRatio, 0) {
+		return TieredResult{}, fmt.Errorf("invalid group ratio: %g", snap.GroupRatio)
+	}
 	cost, trace, err := RunExprByHashWithRequest(snap.ExprString, snap.ExprHash, params, request)
 	if err != nil {
 		return TieredResult{}, err

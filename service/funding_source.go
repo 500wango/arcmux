@@ -37,7 +37,7 @@ func (w *WalletFunding) PreConsume(amount int) error {
 	if amount <= 0 {
 		return nil
 	}
-	if err := model.DecreaseUserQuota(w.userId, amount, false); err != nil {
+	if err := model.PreConsumeUserQuota(w.userId, amount); err != nil {
 		return err
 	}
 	w.consumed = amount
@@ -89,6 +89,11 @@ func (s *SubscriptionFunding) PreConsume(_ int) error {
 	if err != nil {
 		return err
 	}
+	s.applyPreConsumeResult(res)
+	return nil
+}
+
+func (s *SubscriptionFunding) applyPreConsumeResult(res *model.SubscriptionPreConsumeResult) {
 	s.subscriptionId = res.UserSubscriptionId
 	s.preConsumed = res.PreConsumed
 	s.AmountTotal = res.AmountTotal
@@ -98,7 +103,6 @@ func (s *SubscriptionFunding) PreConsume(_ int) error {
 		s.PlanId = planInfo.PlanId
 		s.PlanTitle = planInfo.PlanTitle
 	}
-	return nil
 }
 
 func (s *SubscriptionFunding) Settle(delta int) error {

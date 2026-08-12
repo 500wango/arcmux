@@ -16,6 +16,7 @@ import (
 	"github.com/500wango/arcmux/setting"
 	"github.com/500wango/arcmux/setting/operation_setting"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"github.com/thanhpk/randstr"
 	waffo "github.com/waffo-com/waffo-go"
 	"github.com/waffo-com/waffo-go/config"
@@ -211,10 +212,17 @@ func RequestWaffoPay(c *gin.Context) {
 	// Token 模式下归一化 Amount（存等价美元/CNY 数量，避免 RechargeWaffo 双重放大）
 	amount := req.Amount
 	if operation_setting.GetQuotaDisplayType() == operation_setting.QuotaDisplayTypeTokens {
-		amount = int64(float64(req.Amount) / common.QuotaPerUnit)
-		if amount < 1 {
-			amount = 1
-		}
+		amount = decimal.NewFromInt(req.Amount).
+			Div(decimal.NewFromFloat(common.QuotaPerUnit)).IntPart()
+	}
+	if amount <= 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值额度无效"})
+		return
+	}
+	if _, err := common.QuotaFromDecimalStrict(decimal.NewFromInt(amount).
+		Mul(decimal.NewFromFloat(common.QuotaPerUnit))); err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "充值额度超出范围"})
+		return
 	}
 
 	// 创建本地订单
@@ -408,7 +416,7 @@ func handleWaffoPayment(c *gin.Context, wh *core.WebhookHandler, result *core.Pa
 	LockOrder(merchantOrderId)
 	defer UnlockOrder(merchantOrderId)
 
-	if err := model.RechargeWaffo(merchantOrderId, c.ClientIP()); err != nil {
+	if err := model.RechargeWaffo(merchantOrderId, result.OrderAmount, c.ClientIP()); err != nil {
 		logger.LogError(c.Request.Context(), fmt.Sprintf("Waffo 充值处理失败 trade_no=%s client_ip=%s error=%q", merchantOrderId, c.ClientIP(), err.Error()))
 		sendWaffoWebhookResponse(c, wh, false, err.Error())
 		return

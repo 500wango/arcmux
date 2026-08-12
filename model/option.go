@@ -1,12 +1,15 @@
 package model
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/500wango/arcmux/common"
 	"github.com/500wango/arcmux/setting"
+	"github.com/500wango/arcmux/setting/billing_setting"
 	"github.com/500wango/arcmux/setting/config"
 	"github.com/500wango/arcmux/setting/operation_setting"
 	"github.com/500wango/arcmux/setting/performance_setting"
@@ -190,6 +193,10 @@ func InitOptionMap() {
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
+		if err := validateOptionValue(option.Key, option.Value); err != nil {
+			common.SysLog("ignoring invalid option " + option.Key + ": " + err.Error())
+			continue
+		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			common.SysLog("failed to update option map: " + err.Error())
@@ -206,6 +213,15 @@ func SyncOptions(frequency int) {
 }
 
 func validateOptionValue(key string, value string) error {
+	if key == "QuotaPerUnit" {
+		quotaPerUnit, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
+		if err != nil || quotaPerUnit <= 0 || quotaPerUnit > float64(common.MaxQuota) || math.IsNaN(quotaPerUnit) || math.IsInf(quotaPerUnit, 0) {
+			return fmt.Errorf("QuotaPerUnit must be a finite number between 0 and %d", common.MaxQuota)
+		}
+	}
+	if key == "billing_setting.billing_expr" {
+		return billing_setting.ValidateBillingExprJSON(value)
+	}
 	if key == operation_setting.ToolPriceOptionKey {
 		return operation_setting.ValidateToolPricesJSON(value)
 	}
@@ -224,12 +240,16 @@ func UpdateOption(key string, value string) error {
 		Key: key,
 	}
 	// https://gorm.io/docs/update.html#Save-All-Fields
-	DB.FirstOrCreate(&option, Option{Key: key})
+	if err := DB.FirstOrCreate(&option, Option{Key: key}).Error; err != nil {
+		return err
+	}
 	option.Value = value
 	// Save is a combination function.
 	// If save value does not contain primary key, it will execute Create,
 	// otherwise it will execute Update (with all fields).
-	DB.Save(&option)
+	if err := DB.Save(&option).Error; err != nil {
+		return err
+	}
 	// Update OptionMap
 	return updateOptionMap(key, value)
 }
