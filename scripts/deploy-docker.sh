@@ -176,7 +176,9 @@ print_summary() {
 
  HTTPS tip (after reverse proxy):
    set SESSION_COOKIE_SECURE=true
-   set SESSION_COOKIE_TRUSTED_URL=https://your-domain
+   set SESSION_COOKIE_TRUSTED_URL=https://your-dashboard-domain[,https://api-domain]
+   IMPORTANT: list the browser-facing dashboard Origin(s) too; without them
+   the dashboard logs you out ~15 minutes after login (403 AUTH_ORIGIN_FORBIDDEN).
    then re-run: $0 --rebuild
 ------------------------------------------------------------
 EOF

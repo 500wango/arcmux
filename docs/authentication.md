@@ -5,7 +5,7 @@
 ## 鉴权模型
 
 - Access Token 是有效期 15 分钟的 JWT，只保存在浏览器内存中，通过 `Authorization: Bearer <token>` 发送。
-- Refresh Token 是随机不透明值，有效期最长 30 天。浏览器只通过 `HttpOnly`、`SameSite=Strict` Cookie 持有它；服务端仅保存 HMAC 摘要，并在每次刷新时轮换。
+- Refresh Token 是随机不透明值，有效期最长 90 天。浏览器只通过 `HttpOnly`、`SameSite=Strict` Cookie 持有它；服务端仅保存 HMAC 摘要，并在每次刷新时轮换。
 - `user_sessions` 是登录会话控制面，记录设备、IP、登录方式、最后活跃时间、到期时间和撤销状态。数据库中的 Session 状态是最终权威；撤销传播速度取决于下文所述的 Redis 拓扑。
 - 用户的密码、状态、角色或安全因子发生安全相关变化时，`auth_version` 会递增并使旧登录会话失效。订阅带来的分组升降级只刷新授权缓存，不会退出任何登录设备。
 - Redis 缓存保存用户鉴权快照和登录会话快照。版本栅栏和撤销 tombstone 防止旧缓存重新授权；Session 快照使用跟随 `SYNC_FREQUENCY` 的短 TTL，缓存未命中或未启用 Redis 时回退到数据库校验。
@@ -96,6 +96,8 @@ refresh/logout 的 Origin 防护与 Refresh Cookie 的 Secure 模式绑定：
 - `SESSION_COOKIE_SECURE=true` 时，Refresh Cookie 仅通过 HTTPS 发送，同时启用严格 OriginGuard。`POST /api/user/auth/refresh` 和 `POST /api/user/auth/logout` 会校验浏览器的 `Origin`；缺少 `Origin` 时只接受合法的单一 `Referer` 作为回退。允许来源包括请求自身的精确 Origin，以及 `SESSION_COOKIE_TRUSTED_URL` 中配置的精确 Origin。
 
 Secure 模式的 Origin 校验不信任客户端直接发送的 `X-Forwarded-Proto`。TLS 在反向代理终止时，应将面板的公开 HTTPS Origin 明确写入 `SESSION_COOKIE_TRUSTED_URL`。
+
+**必须列出浏览器实际访问的每个面板域名，不能只填 relay API 域名。** 前端 Access Token 只有 15 分钟有效期，到期前 60 秒会自动通过 `POST /api/user/auth/refresh` 静默续期；如果该请求的 `Origin` 不在白名单（或与浏览器实际使用的 Host 不完全一致），服务器返回 `403 AUTH_ORIGIN_FORBIDDEN`，前端会把会话判定为失效并登出——表现为"登录约 10~15 分钟后被踢回登录页"。排查时可用 `curl -X POST -H "Origin: https://<候选域名>" https://<面板域名>/api/user/auth/refresh` 探测：`401` 表示放行（仅缺 Cookie），`403 AUTH_ORIGIN_FORBIDDEN` 表示该 Origin 未列入白名单。
 
 `SESSION_COOKIE_TRUSTED_URL` 现在具有明确的新语义：它是 refresh/logout Cookie 端点的可信 Origin 列表，不是 CORS 白名单。配置规则如下：
 
