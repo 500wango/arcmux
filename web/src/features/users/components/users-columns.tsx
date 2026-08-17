@@ -171,6 +171,21 @@ export function useUsersColumns(): ColumnDef<User>[] {
       meta: { mobileOrder: 40 },
     },
     {
+      accessorKey: 'used_tokens',
+      header: t('Total Tokens'),
+      cell: ({ row }) => {
+        const usedTokens = row.getValue('used_tokens') as number
+        return (
+          <span className='font-mono text-sm tabular-nums'>
+            {usedTokens.toLocaleString()}
+          </span>
+        )
+      },
+      enableSorting: false,
+      size: 160,
+      meta: { mobileOrder: 50 },
+    },
+    {
       accessorKey: 'group',
       header: t('Group'),
       cell: ({ row }) => {

@@ -94,7 +94,8 @@ type User struct {
 	AccessToken      *string                    `json:"-" gorm:"type:char(32);column:access_token;uniqueIndex"` // this token is for system management
 	Quota            int                        `json:"quota" gorm:"type:int;default:0"`
 	UsedQuota        int                        `json:"used_quota" gorm:"type:int;default:0;column:used_quota"` // used quota
-	RequestCount     int                        `json:"request_count" gorm:"type:int;default:0;"`               // request number
+	UsedTokens       int64                      `json:"used_tokens" gorm:"-:all"`
+	RequestCount     int                        `json:"request_count" gorm:"type:int;default:0;"` // request number
 	Group            string                     `json:"group" gorm:"type:varchar(64);default:'default'"`
 	AffCode          string                     `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	AffCount         int                        `json:"aff_count" gorm:"type:int;default:0;column:aff_count"`
@@ -393,8 +394,27 @@ func GetAllUsers(pageInfo *common.PageInfo, sortOptions ...UserSortOptions) (use
 	if err = tx.Commit().Error; err != nil {
 		return nil, 0, err
 	}
+	if err = fillUsersUsedTokens(users); err != nil {
+		return nil, 0, err
+	}
 
 	return users, total, nil
+}
+
+func fillUsersUsedTokens(users []*User) error {
+	userIDs := make([]int, 0, len(users))
+	for _, user := range users {
+		userIDs = append(userIDs, user.Id)
+	}
+
+	usedTokens, err := GetUsersUsedTokens(userIDs)
+	if err != nil {
+		return err
+	}
+	for _, user := range users {
+		user.UsedTokens = usedTokens[user.Id]
+	}
+	return nil
 }
 
 func SearchUsers(keyword string, group string, role *int, status *int, startIdx int, num int, sortOptions ...UserSortOptions) ([]*User, int64, error) {
@@ -460,6 +480,9 @@ func SearchUsers(keyword string, group string, role *int, status *int, startIdx 
 
 	// 提交事务
 	if err = tx.Commit().Error; err != nil {
+		return nil, 0, err
+	}
+	if err = fillUsersUsedTokens(users); err != nil {
 		return nil, 0, err
 	}
 

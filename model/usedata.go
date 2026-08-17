@@ -138,6 +138,43 @@ func increaseQuotaData(quotaData *QuotaData) {
 	}
 }
 
+func GetUsersUsedTokens(userIDs []int) (map[int]int64, error) {
+	usedTokens := make(map[int]int64, len(userIDs))
+	for _, userID := range userIDs {
+		usedTokens[userID] = 0
+	}
+	if len(userIDs) == 0 {
+		return usedTokens, nil
+	}
+
+	var rows []struct {
+		UserID     int
+		UsedTokens int64
+	}
+
+	// Keep both sources under the cache lock so a concurrent flush cannot move
+	// tokens from memory to the database between the two reads.
+	CacheQuotaDataLock.Lock()
+	defer CacheQuotaDataLock.Unlock()
+	if err := DB.Table("quota_data").
+		Select("user_id, COALESCE(SUM(token_used), 0) AS used_tokens").
+		Where("user_id IN ?", userIDs).
+		Group("user_id").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		usedTokens[row.UserID] = row.UsedTokens
+	}
+	for _, quotaData := range CacheQuotaData {
+		if _, ok := usedTokens[quotaData.UserID]; ok {
+			usedTokens[quotaData.UserID] += int64(quotaData.TokenUsed)
+		}
+	}
+
+	return usedTokens, nil
+}
+
 func GetQuotaDataByUsername(username string, startTime int64, endTime int64) (quotaData []*QuotaData, err error) {
 	var quotaDatas []*QuotaData
 	// 从quota_data表中查询数据
