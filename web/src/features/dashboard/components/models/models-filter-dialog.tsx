@@ -39,6 +39,7 @@ import {
 import {
   buildDefaultDashboardFilters,
   cleanFilters,
+  getGranularityForRangeDays,
 } from '@/features/dashboard/lib'
 import type {
   DashboardChartPreferences,
@@ -57,15 +58,6 @@ interface ModelsFilterProps {
   onReset: () => void
   titleKey?: string
   descriptionKey?: string
-}
-
-// Quick-range presets imply a sensible granularity (matching the app's
-// range<->granularity pairing), so picking "7 Days" requests daily buckets
-// instead of leaving the granularity on its previous value (e.g. hourly).
-function granularityForRangeDays(days: number): TimeGranularity {
-  if (days <= 1) return 'hour'
-  if (days >= 29) return 'week'
-  return 'day'
 }
 
 // Highlights the matching quick-range button when the applied range spans an
@@ -148,8 +140,9 @@ export function ModelsFilter(props: ModelsFilterProps) {
     value: Date | string | undefined
   ) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
-    if (field === 'start_timestamp' || field === 'end_timestamp')
+    if (field === 'start_timestamp' || field === 'end_timestamp') {
       setSelectedRange(null)
+    }
   }
 
   const handleQuickRange = (days: number) => {
@@ -159,7 +152,7 @@ export function ModelsFilter(props: ModelsFilterProps) {
       ...prev,
       start_timestamp: start,
       end_timestamp: end,
-      time_granularity: granularityForRangeDays(days),
+      time_granularity: getGranularityForRangeDays(days),
     }))
     setSelectedRange(days)
   }
@@ -255,12 +248,10 @@ export function ModelsFilter(props: ModelsFilterProps) {
           <div className='grid gap-2'>
             <Label htmlFor='time_granularity'>{t('Time Granularity')}</Label>
             <Select
-              items={[
-                ...TIME_GRANULARITY_OPTIONS.map((option) => ({
-                  value: option.value,
-                  label: t(option.label),
-                })),
-              ]}
+              items={TIME_GRANULARITY_OPTIONS.map((option) => ({
+                value: option.value,
+                label: t(option.label),
+              }))}
               value={filters.time_granularity}
               onValueChange={(value) =>
                 handleChange('time_granularity', value as TimeGranularity)

@@ -14,30 +14,18 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-export {
-  cleanFilters,
-  buildQueryParams,
-  getSavedGranularity,
-  saveGranularity,
-  getDefaultDays,
-  getGranularityForRangeDays,
-  getSavedChartPreferences,
-  saveChartPreferences,
-  buildDefaultDashboardFilters,
-} from './filters'
-export {
-  getLatencyColorClass,
-  testUrlLatency,
-  openExternalSpeedTest,
-  getDefaultPingStatus,
-} from './api-info'
-export { processChartData, processUserChartData } from './charts'
-export {
-  buildDashboardFlowData,
-  buildFlowSankeySpec,
-  flowNodeFilterFromSankeyDatum,
-  flowSankeyDatumValue,
-  getFlowStages,
-} from './flow'
-export { safeDivide, calculateDashboardStats } from './stats'
-export { getPreviewText } from './text'
+import assert from 'node:assert/strict'
+import { describe, test } from 'node:test'
+
+import { getGranularityForRangeDays } from '../filters'
+
+describe('dashboard time range filters', () => {
+  test('uses daily buckets for a 14-day range', () => {
+    assert.equal(getGranularityForRangeDays(14), 'day')
+  })
+
+  test('uses hourly and weekly buckets at the range boundaries', () => {
+    assert.equal(getGranularityForRangeDays(1), 'hour')
+    assert.equal(getGranularityForRangeDays(29), 'week')
+  })
+})

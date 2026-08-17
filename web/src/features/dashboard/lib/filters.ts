@@ -138,6 +138,12 @@ export function getDefaultDays(granularity?: TimeGranularity): number {
   return TIME_RANGE_BY_GRANULARITY[getSavedGranularity(granularity)]
 }
 
+export function getGranularityForRangeDays(days: number): TimeGranularity {
+  if (days <= 1) return 'hour'
+  if (days >= 29) return 'week'
+  return 'day'
+}
+
 export function buildDefaultDashboardFilters(
   preferences: DashboardChartPreferences = getSavedChartPreferences()
 ): DashboardFilters {

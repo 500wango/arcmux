@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 import { useQuery } from '@tanstack/react-query'
 import { VChart } from '@visactor/react-vchart'
-import { Users, Loader2 } from 'lucide-react'
+import { Activity, Hash, Loader2, Users, WalletCards } from 'lucide-react'
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -31,10 +31,12 @@ import {
 } from '@/features/dashboard/constants'
 import {
   getDefaultDays,
+  getGranularityForRangeDays,
   saveGranularity,
   processUserChartData,
 } from '@/features/dashboard/lib'
 import type {
+  FlowMetric,
   ProcessedUserChartData,
   UserChartsFilters,
 } from '@/features/dashboard/types'
@@ -64,6 +66,16 @@ const USER_CHARTS: {
 
 const TOP_USER_LIMIT_OPTIONS = [5, 10, 20, 50]
 
+const USER_METRIC_OPTIONS: {
+  value: FlowMetric
+  labelKey: string
+  icon: typeof WalletCards
+}[] = [
+  { value: 'quota', labelKey: 'By quota', icon: WalletCards },
+  { value: 'tokens', labelKey: 'By tokens', icon: Hash },
+  { value: 'requests', labelKey: 'By requests', icon: Activity },
+]
+
 interface UserChartsProps {
   filters: UserChartsFilters
   onFiltersChange: (filters: UserChartsFilters) => void
@@ -83,6 +95,7 @@ export function UserCharts(props: UserChartsProps) {
   const selectedRange = props.filters.selectedRange
   const topUserLimit = props.filters.topUserLimit
   const onFiltersChange = props.onFiltersChange
+  const [metric, setMetric] = useState<FlowMetric>('tokens')
 
   const timeRange = useMemo(() => {
     const { start, end } = getRollingDateRange(selectedRange)
@@ -94,7 +107,13 @@ export function UserCharts(props: UserChartsProps) {
 
   const handleRangeChange = useCallback(
     (days: number) => {
-      onFiltersChange({ ...props.filters, selectedRange: days })
+      const granularity = getGranularityForRangeDays(days)
+      saveGranularity(granularity)
+      onFiltersChange({
+        ...props.filters,
+        selectedRange: days,
+        timeGranularity: granularity,
+      })
     },
     [onFiltersChange, props.filters]
   )
@@ -147,14 +166,38 @@ export function UserCharts(props: UserChartsProps) {
         isLoading ? [] : (userData ?? []),
         timeGranularity,
         t,
-        topUserLimit
+        topUserLimit,
+        metric,
+        timeRange
       ),
-    [userData, isLoading, timeGranularity, t, topUserLimit]
+    [userData, isLoading, timeGranularity, t, topUserLimit, metric, timeRange]
   )
 
   return (
     <div className='space-y-3'>
       <div className='flex items-center gap-1.5 overflow-x-auto pb-1 sm:gap-2'>
+        <Tabs
+          value={metric}
+          onValueChange={(value) => setMetric(value as FlowMetric)}
+          className='shrink-0'
+        >
+          <TabsList aria-label={t('User Analytics')}>
+            {USER_METRIC_OPTIONS.map((option) => {
+              const Icon = option.icon
+              return (
+                <TabsTrigger
+                  key={option.value}
+                  value={option.value}
+                  className='gap-1.5 px-2.5 text-xs'
+                >
+                  <Icon data-icon='inline-start' aria-hidden='true' />
+                  {t(option.labelKey)}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
+        </Tabs>
+
         <Tabs
           value={String(selectedRange)}
           onValueChange={(value) => handleRangeChange(Number(value))}
