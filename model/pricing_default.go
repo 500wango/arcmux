@@ -31,6 +31,7 @@ var defaultVendorRules = map[string]string{
 	"jina":     "Jina",
 	"mistral":  "Mistral",
 	"grok":     "xAI",
+	"grok-4.6": "xAI",
 	"llama":    "Meta",
 	"doubao":   "字节跳动",
 	"kling":    "快手",
