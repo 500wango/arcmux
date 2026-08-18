@@ -30,7 +30,11 @@ import { TransferDialog } from './components/dialogs/transfer-dialog'
 import { RechargeFormCard } from './components/recharge-form-card'
 import { SubscriptionPlansCard } from './components/subscription-plans-card'
 import { WalletStatsCard } from './components/wallet-stats-card'
-import { DEFAULT_DISCOUNT_RATE, PAYMENT_TYPES } from './constants'
+import {
+  DEFAULT_DISCOUNT_RATE,
+  DEFAULT_REDEMPTION_CODE_STORE_URL,
+  PAYMENT_TYPES,
+} from './constants'
 import {
   useTopupInfo,
   usePayment,
@@ -311,7 +315,9 @@ export function Wallet(props: WalletProps) {
                   onRedemptionCodeChange={setRedemptionCode}
                   onRedeem={handleRedeem}
                   redeeming={redeeming}
-                  topupLink={topupInfo?.topup_link}
+                  topupLink={
+                    topupInfo?.topup_link || DEFAULT_REDEMPTION_CODE_STORE_URL
+                  }
                   loading={topupLoading}
                   priceRatio={(status?.price as number) || 1}
                   usdExchangeRate={effectiveUsdExchangeRate}

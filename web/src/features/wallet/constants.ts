@@ -62,3 +62,9 @@ export const DEFAULT_DISCOUNT_RATE = 1.0
  * Default minimum topup amount
  */
 export const DEFAULT_MIN_TOPUP = 1
+
+/**
+ * Default external store for users who need a redemption code.
+ * Administrators can override this with the Top-Up Link setting.
+ */
+export const DEFAULT_REDEMPTION_CODE_STORE_URL = 'https://cardrelease.shop'
