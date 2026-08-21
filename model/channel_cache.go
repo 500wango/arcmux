@@ -112,9 +112,18 @@ func SyncChannelCache(frequency int) {
 }
 
 func GetRandomSatisfiedChannel(group string, model string, retry int, requestPath string) (*Channel, error) {
+	return GetRandomSatisfiedChannelExcluding(group, model, retry, requestPath, nil)
+}
+
+// GetRandomSatisfiedChannelExcluding selects a channel while ignoring channels
+// that have already been attempted for the current request. The exclusion is
+// applied after request-path/model filtering and before priority/weight
+// selection so both routing strategies remain effective for the remaining
+// candidates.
+func GetRandomSatisfiedChannelExcluding(group string, model string, retry int, requestPath string, excluded map[int]struct{}) (*Channel, error) {
 	// if memory cache is disabled, get channel directly from database
 	if !common.MemoryCacheEnabled {
-		return GetChannel(group, model, retry, requestPath)
+		return GetChannelExcluding(group, model, retry, requestPath, excluded)
 	}
 
 	channelSyncLock.RLock()
@@ -131,6 +140,18 @@ func GetRandomSatisfiedChannel(group string, model string, retry int, requestPat
 
 	if len(channels) == 0 {
 		return nil, nil
+	}
+	if len(excluded) > 0 {
+		filtered := channels[:0]
+		for _, channelID := range channels {
+			if _, skip := excluded[channelID]; !skip {
+				filtered = append(filtered, channelID)
+			}
+		}
+		channels = filtered
+		if len(channels) == 0 {
+			return nil, nil
+		}
 	}
 
 	if len(channels) == 1 {
@@ -154,10 +175,16 @@ func GetRandomSatisfiedChannel(group string, model string, retry int, requestPat
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(sortedUniquePriorities)))
 
-	if retry >= len(uniquePriorities) {
-		retry = len(uniquePriorities) - 1
+	priorityIndex := retry
+	if len(excluded) > 0 {
+		// Once a request has failed on a channel, keep trying the highest
+		// priority that still has an unused candidate before falling back.
+		priorityIndex = 0
 	}
-	targetPriority := int64(sortedUniquePriorities[retry])
+	if priorityIndex >= len(uniquePriorities) {
+		priorityIndex = len(uniquePriorities) - 1
+	}
+	targetPriority := int64(sortedUniquePriorities[priorityIndex])
 
 	// get the priority for the given retry number
 	var sumWeight = 0

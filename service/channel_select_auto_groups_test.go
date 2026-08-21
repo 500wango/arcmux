@@ -127,3 +127,107 @@ func TestCacheGetRandomSatisfiedChannelUsesTokenAutoGroupsWhenGlobalAutoIsEmpty(
 	assert.Equal(t, "default", selectedGroup)
 	assert.Equal(t, "default", common.GetContextKeyString(ctx, constant.ContextKeyAutoGroup))
 }
+
+func TestCacheGetRandomSatisfiedChannelExcludesAttemptedChannels(t *testing.T) {
+	db := setupChannelSelectAutoGroupsTest(t)
+	const modelName = "weighted-failover-model"
+	createChannelSelectAutoGroupsChannel(t, db, 2201, "default", modelName)
+	createChannelSelectAutoGroupsChannel(t, db, 2202, "default", modelName)
+	model.InitChannelCache()
+
+	gin.SetMode(gin.TestMode)
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	retry := 0
+	param := &RetryParam{
+		Ctx:         ctx,
+		TokenGroup:  "default",
+		ModelName:   modelName,
+		RequestPath: "/v1/chat/completions",
+		Retry:       &retry,
+	}
+
+	first, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	require.NotNil(t, first)
+
+	param.ExcludeChannel(first.Id)
+	param.IncreaseRetry()
+	second, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	require.NotNil(t, second)
+	assert.NotEqual(t, first.Id, second.Id)
+
+	param.ExcludeChannel(second.Id)
+	param.IncreaseRetry()
+	third, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	assert.Nil(t, third)
+}
+
+func TestCacheGetRandomSatisfiedChannelKeepsHighestAvailablePriorityOnRetry(t *testing.T) {
+	db := setupChannelSelectAutoGroupsTest(t)
+	const modelName = "priority-failover-model"
+	highPriority := int64(10)
+	lowPriority := int64(1)
+	weight := uint(100)
+	for _, channel := range []struct {
+		id       int
+		priority *int64
+	}{
+		{id: 2301, priority: &highPriority},
+		{id: 2302, priority: &highPriority},
+		{id: 2303, priority: &lowPriority},
+	} {
+		require.NoError(t, db.Create(&model.Channel{
+			Id:       channel.id,
+			Type:     constant.ChannelTypeOpenAI,
+			Key:      fmt.Sprintf("key-%d", channel.id),
+			Status:   common.ChannelStatusEnabled,
+			Name:     fmt.Sprintf("channel-%d", channel.id),
+			Weight:   &weight,
+			Models:   modelName,
+			Group:    "default",
+			Priority: channel.priority,
+		}).Error)
+		require.NoError(t, db.Create(&model.Ability{
+			Group:     "default",
+			Model:     modelName,
+			ChannelId: channel.id,
+			Enabled:   true,
+			Priority:  channel.priority,
+			Weight:    weight,
+		}).Error)
+	}
+	model.InitChannelCache()
+
+	gin.SetMode(gin.TestMode)
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	retry := 0
+	param := &RetryParam{
+		Ctx:         ctx,
+		TokenGroup:  "default",
+		ModelName:   modelName,
+		RequestPath: "/v1/chat/completions",
+		Retry:       &retry,
+	}
+
+	first, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	require.NotNil(t, first)
+	assert.Contains(t, []int{2301, 2302}, first.Id)
+
+	param.ExcludeChannel(first.Id)
+	param.IncreaseRetry()
+	second, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	require.NotNil(t, second)
+	assert.Contains(t, []int{2301, 2302}, second.Id)
+	assert.NotEqual(t, first.Id, second.Id)
+
+	param.ExcludeChannel(second.Id)
+	param.IncreaseRetry()
+	third, _, err := CacheGetRandomSatisfiedChannel(param)
+	require.NoError(t, err)
+	require.NotNil(t, third)
+	assert.Equal(t, 2303, third.Id)
+}

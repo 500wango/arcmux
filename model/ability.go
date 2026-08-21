@@ -106,22 +106,58 @@ func getChannelQuery(group string, model string, retry int) (*gorm.DB, error) {
 }
 
 func GetChannel(group string, model string, retry int, requestPath string) (*Channel, error) {
+	return GetChannelExcluding(group, model, retry, requestPath, nil)
+}
+
+// GetChannelExcluding selects a channel while ignoring channels that have
+// already been attempted for the current request. This keeps retry/failover
+// behavior consistent when memory caching is disabled.
+func GetChannelExcluding(group string, model string, retry int, requestPath string, excluded map[int]struct{}) (*Channel, error) {
 	var abilities []Ability
 
-	var err error = nil
-	channelQuery, err := getChannelQuery(group, model, retry)
-	if err != nil {
-		return nil, err
-	}
-	if common.UsingMainDatabase(common.DatabaseTypeSQLite) || common.UsingMainDatabase(common.DatabaseTypePostgreSQL) {
+	var err error
+	if len(excluded) == 0 {
+		channelQuery, queryErr := getChannelQuery(group, model, retry)
+		if queryErr != nil {
+			return nil, queryErr
+		}
 		err = channelQuery.Order("weight DESC").Find(&abilities).Error
 	} else {
-		err = channelQuery.Order("weight DESC").Find(&abilities).Error
+		// A retry should first use the highest-priority candidate that has not
+		// failed in this request. Query all priorities, then narrow to the
+		// highest remaining one after excluding attempted channels.
+		err = DB.Where(commonGroupCol+" = ? and model = ? and enabled = ?", group, model, true).
+			Order("priority DESC").Order("weight DESC").Find(&abilities).Error
 	}
 	if err != nil {
 		return nil, err
 	}
 	abilities = filterAbilitiesByRequestPathAndModel(abilities, requestPath, model)
+	if len(excluded) > 0 {
+		filtered := abilities[:0]
+		for _, ability := range abilities {
+			if _, skip := excluded[ability.ChannelId]; !skip {
+				filtered = append(filtered, ability)
+			}
+		}
+		abilities = filtered
+		if len(abilities) > 0 {
+			priorityValue := func(ability Ability) int64 {
+				if ability.Priority == nil {
+					return 0
+				}
+				return *ability.Priority
+			}
+			targetPriority := priorityValue(abilities[0])
+			highestPriority := abilities[:0]
+			for _, ability := range abilities {
+				if priorityValue(ability) == targetPriority {
+					highestPriority = append(highestPriority, ability)
+				}
+			}
+			abilities = highestPriority
+		}
+	}
 	channel := Channel{}
 	if len(abilities) > 0 {
 		// Randomly choose one
