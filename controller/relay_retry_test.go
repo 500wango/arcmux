@@ -37,3 +37,15 @@ func TestShouldRetryTaskRelayTreatsExhaustedUpstreamBalanceAsFailover(t *testing
 	taskErr.LocalError = true
 	require.False(t, shouldRetryTaskRelay(ctx, 0, taskErr, 1))
 }
+
+func TestShouldRetryTaskRelayDoesNotFailOverOnPlainBadRequest(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	taskErr := &taskdto.TaskError{
+		Code:       "",
+		Message:    "invalid request payload",
+		StatusCode: 400,
+	}
+
+	require.False(t, shouldRetryTaskRelay(ctx, 0, taskErr, 1))
+}

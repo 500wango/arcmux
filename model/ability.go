@@ -126,8 +126,10 @@ func GetChannelExcluding(group string, model string, retry int, requestPath stri
 		// A retry should first use the highest-priority candidate that has not
 		// failed in this request. Query all priorities, then narrow to the
 		// highest remaining one after excluding attempted channels.
+		// COALESCE treats NULL priority as 0 (lowest tier) consistently:
+		// PostgreSQL sorts NULLs first on DESC while MySQL/SQLite sort them last.
 		err = DB.Where(commonGroupCol+" = ? and model = ? and enabled = ?", group, model, true).
-			Order("priority DESC").Order("weight DESC").Find(&abilities).Error
+			Order("COALESCE(priority, 0) DESC").Order("weight DESC").Find(&abilities).Error
 	}
 	if err != nil {
 		return nil, err
