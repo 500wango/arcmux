@@ -362,6 +362,12 @@ func shouldRetry(c *gin.Context, openaiErr *types.NewAPIError, retryTimes int) b
 	if operation_setting.IsAlwaysSkipRetryCode(openaiErr.GetErrorCode()) {
 		return false
 	}
+	if operation_setting.IsAlwaysSkipRetryStatusCode(code) {
+		return false
+	}
+	if service.IsChannelUnavailableError(openaiErr) {
+		return true
+	}
 	return operation_setting.ShouldRetryByStatusCode(code)
 }
 
@@ -677,14 +683,14 @@ func shouldRetryTaskRelay(c *gin.Context, channelId int, taskErr *taskdto.TaskEr
 		}
 		return true
 	}
-	if taskErr.StatusCode == http.StatusBadRequest {
+	if taskErr.LocalError {
 		return false
+	}
+	if taskErr.StatusCode == http.StatusBadRequest {
+		return service.IsChannelUnavailableMessage(taskErr.Message, taskErr.Code)
 	}
 	if taskErr.StatusCode == 408 {
 		// azure处理超时不重试
-		return false
-	}
-	if taskErr.LocalError {
 		return false
 	}
 	if taskErr.StatusCode/100 == 2 {

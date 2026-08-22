@@ -64,6 +64,48 @@ func ShouldDisableChannel(err *types.NewAPIError) bool {
 	return search
 }
 
+// IsChannelUnavailableError reports failures that indicate the selected
+// upstream channel cannot serve this request.  Some providers report an
+// exhausted balance as HTTP 400, which is intentionally excluded from the
+// generic retry status-code list because most 400 responses are client errors.
+// The same configured disable keywords are therefore also treated as a
+// channel-level failover signal, independent of whether auto-disable is on.
+func IsChannelUnavailableError(err *types.NewAPIError) bool {
+	if err == nil || types.IsSkipRetryError(err) {
+		return false
+	}
+	if types.IsChannelError(err) || operation_setting.ShouldDisableByStatusCode(err.StatusCode) {
+		return true
+	}
+	return IsChannelUnavailableMessage(err.Error(), string(err.GetErrorCode()))
+}
+
+// IsChannelUnavailableMessage applies provider-independent channel availability
+// signals to both normal relay errors and task relay errors.
+func IsChannelUnavailableMessage(message string, errorCode string) bool {
+	// Provider error codes are more stable than localized messages.
+	switch strings.ToLower(strings.TrimSpace(errorCode)) {
+	case "insufficient_quota", "quota_exceeded", "resource_exhausted", "credit_balance_too_low", "billing_hard_limit_reached":
+		return true
+	}
+
+	lowerMessage := strings.ToLower(message)
+	for _, fragment := range []string{
+		"credit balance is too low",
+		"insufficient quota",
+		"quota exceeded",
+		"out of credits",
+		"not enough credits",
+		"billing hard limit",
+	} {
+		if strings.Contains(lowerMessage, fragment) {
+			return true
+		}
+	}
+	search, _ := AcSearch(lowerMessage, operation_setting.AutomaticDisableKeywords, true)
+	return search
+}
+
 func ShouldEnableChannel(newAPIError *types.NewAPIError, status int) bool {
 	if !common.AutomaticEnableChannelEnabled {
 		return false

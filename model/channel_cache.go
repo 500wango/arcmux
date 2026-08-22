@@ -142,7 +142,10 @@ func GetRandomSatisfiedChannelExcluding(group string, model string, retry int, r
 		return nil, nil
 	}
 	if len(excluded) > 0 {
-		filtered := channels[:0]
+		// Do not compact the cached slice in place. The cache is shared by all
+		// requests, so mutating its backing array would permanently remove a
+		// channel after one request excludes it.
+		filtered := make([]int, 0, len(channels))
 		for _, channelID := range channels {
 			if _, skip := excluded[channelID]; !skip {
 				filtered = append(filtered, channelID)

@@ -164,6 +164,28 @@ func TestCacheGetRandomSatisfiedChannelExcludesAttemptedChannels(t *testing.T) {
 	assert.Nil(t, third)
 }
 
+func TestCacheChannelExclusionDoesNotMutateSubsequentRequests(t *testing.T) {
+	db := setupChannelSelectAutoGroupsTest(t)
+	const modelName = "cache-exclusion-isolation-model"
+	createChannelSelectAutoGroupsChannel(t, db, 2251, "default", modelName)
+	createChannelSelectAutoGroupsChannel(t, db, 2252, "default", modelName)
+	model.InitChannelCache()
+
+	first, err := model.GetRandomSatisfiedChannelExcluding(
+		"default", modelName, 0, "/v1/chat/completions", map[int]struct{}{2251: {}},
+	)
+	require.NoError(t, err)
+	require.NotNil(t, first)
+	assert.Equal(t, 2252, first.Id)
+
+	second, err := model.GetRandomSatisfiedChannelExcluding(
+		"default", modelName, 0, "/v1/chat/completions", map[int]struct{}{2252: {}},
+	)
+	require.NoError(t, err)
+	require.NotNil(t, second)
+	assert.Equal(t, 2251, second.Id)
+}
+
 func TestCacheGetRandomSatisfiedChannelKeepsHighestAvailablePriorityOnRetry(t *testing.T) {
 	db := setupChannelSelectAutoGroupsTest(t)
 	const modelName = "priority-failover-model"
