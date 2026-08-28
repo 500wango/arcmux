@@ -469,7 +469,14 @@ func SelectUpstreamOAuthCredential(ctx context.Context, channel *model.Channel, 
 			lastErr = err
 		}
 	}
-	return "", 0, providers[0], anyConfigured, lastErr
+	// Do not expose the channel's default OAuth provider when no credential
+	// was actually found. Adapters use this value to select OAuth-specific
+	// routing and headers; returning "xai" here would incorrectly activate
+	// the xAI CLI proxy path for ordinary API-key channels.
+	if !anyConfigured {
+		return "", 0, "", false, lastErr
+	}
+	return "", 0, providers[0], true, lastErr
 }
 
 // GetUpstreamOAuthRequestMetadata returns only non-secret routing metadata for a credential.
