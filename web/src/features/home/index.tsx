@@ -132,16 +132,16 @@ export function Home() {
       <section className='relative z-10 px-6 py-20 md:py-28'>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-12 text-center'>
-            <div className='mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 font-mono text-xs font-semibold text-primary'>
+            <div className='border-primary/20 bg-primary/5 text-primary mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs font-semibold'>
               <Code2 className='size-3.5' />
               <span>{t('Developer First')}</span>
             </div>
             <h2 className='text-3xl font-extrabold tracking-tight md:text-4xl'>
-              {t('Drop-in Compatible with Every SDK')}
+              {t('Integration examples')}
             </h2>
             <p className='text-muted-foreground mx-auto mt-3 max-w-2xl text-sm leading-relaxed md:text-base'>
               {t(
-                'Only change the Base URL and API key. Works directly with official OpenAI, Anthropic, LangChain, and LlamaIndex packages.'
+                'Set your Base URL and API key, then choose an available model. API and SDK compatibility depend on the selected model and channel.'
               )}
             </p>
           </div>

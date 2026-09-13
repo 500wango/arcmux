@@ -23,6 +23,7 @@ import {
   Key,
   LayoutDashboard,
   ListTodo,
+  MonitorCheck,
   Radio,
   ServerCog,
   Settings,
@@ -34,6 +35,7 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import type { SidebarData } from '@/components/layout/types'
+import { useDashboardContentVisibility } from '@/features/dashboard/hooks/use-status-data'
 import { ROLE } from '@/lib/roles'
 
 /**
@@ -44,6 +46,7 @@ import { ROLE } from '@/lib/roles'
  */
 export function useSidebarData(): SidebarData {
   const { t } = useTranslation()
+  const { uptimeKuma } = useDashboardContentVisibility()
 
   return {
     navGroups: [
@@ -66,6 +69,16 @@ export function useSidebarData(): SidebarData {
             url: '/dashboard/models',
             icon: LayoutDashboard,
           },
+          ...(uptimeKuma
+            ? [
+                {
+                  title: t('Service Status'),
+                  url: '/service-status',
+                  configUrls: ['/dashboard/overview'],
+                  icon: MonitorCheck,
+                },
+              ]
+            : []),
           {
             title: t('API Keys'),
             url: '/keys',

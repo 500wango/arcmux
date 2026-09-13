@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
+import { usePricingData } from '@/features/pricing/hooks/use-pricing-data'
 import { cn } from '@/lib/utils'
 
 type LanguageKey = 'curl' | 'python' | 'typescript' | 'go'
@@ -27,6 +28,26 @@ export function CodeIntegrationTabs({ className }: { className?: string }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<LanguageKey>('curl')
   const [copied, setCopied] = useState(false)
+  const { models, isLoading, error } = usePricingData()
+  const model = models.find((item) =>
+    item.supported_endpoint_types?.includes('openai')
+  )
+
+  if (isLoading) return <p role='status'>{t('Loading...')}</p>
+  if (error) {
+    return (
+      <p role='alert'>
+        {t('Model catalog is unavailable. Please try again later.')}
+      </p>
+    )
+  }
+  if (!model) {
+    return (
+      <p>{t('No model with Chat Completions support is currently listed.')}</p>
+    )
+  }
+
+  const modelLiteral = JSON.stringify(model.model_name)
 
   const codeSnippets: Record<LanguageKey, { label: string; code: string }> = {
     curl: {
@@ -35,7 +56,7 @@ export function CodeIntegrationTabs({ className }: { className?: string }) {
   -H "Authorization: Bearer sk-your-api-key" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "gpt-4o",
+    "model": ${modelLiteral.replaceAll("'", "'\\''")},
     "messages": [
       {"role": "system", "content": "You are a helpful assistant."},
       {"role": "user", "content": "Explain quantum computing in 2 sentences."}
@@ -53,7 +74,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="claude-3-7-sonnet",
+    model=${modelLiteral},
     messages=[
         {"role": "user", "content": "Write a high-performance LRU cache in Go."}
     ],
@@ -75,7 +96,7 @@ const client = new OpenAI({
 
 async function main() {
   const stream = await client.chat.completions.create({
-    model: 'deepseek-r1',
+    model: ${modelLiteral},
     messages: [{ role: 'user', content: 'Design a distributed rate limiter.' }],
     stream: true,
   })
@@ -105,7 +126,7 @@ func main() {
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "gpt-4o",
+			Model: ${modelLiteral},
 			Messages: []openai.ChatCompletionMessage{
 				{Role: openai.ChatMessageRoleUser, Content: "Hello ArcMux!"},
 			},
@@ -140,8 +161,8 @@ func main() {
             <span className='size-3 rounded-full bg-yellow-500/80' />
             <span className='size-3 rounded-full bg-green-500/80' />
           </div>
-          <span className='ml-2 text-xs font-mono text-zinc-400'>
-            {t('Universal Drop-in Integration')}
+          <span className='ml-2 font-mono text-xs text-zinc-400'>
+            {t('Integration examples')}
           </span>
         </div>
 

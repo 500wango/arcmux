@@ -37,7 +37,7 @@ export function CTA(props: CTAProps) {
     <section className='relative z-10 overflow-hidden px-6 py-20 md:py-28'>
       <div className='mx-auto max-w-6xl'>
         <AnimateInView
-          className='relative overflow-hidden rounded-3xl border border-border/80 bg-zinc-950/90 p-8 text-center text-zinc-100 shadow-2xl backdrop-blur-xl md:p-14'
+          className='border-border/80 relative overflow-hidden rounded-3xl border bg-zinc-950/90 p-8 text-center text-zinc-100 shadow-2xl backdrop-blur-xl md:p-14'
           animation='scale-in'
         >
           {/* Subtle micro-grid accent */}
@@ -54,27 +54,27 @@ export function CTA(props: CTAProps) {
           <div className='relative z-10 mx-auto max-w-2xl'>
             <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold text-emerald-400'>
               <Terminal className='size-3.5' />
-              <span>{t('Instant Integration in 60s')}</span>
+              <span>{t('Developer First')}</span>
             </div>
 
             <h2 className='text-3xl font-extrabold tracking-tight md:text-5xl'>
-              {t('Ready to scale with zero vendor lock-in?')}
+              {t('Get Started')}
             </h2>
 
-            <p className='text-zinc-400 mt-4 text-sm leading-relaxed md:text-base'>
+            <p className='mt-4 text-sm leading-relaxed text-zinc-400 md:text-base'>
               {t(
-                'Generate your API token now to start routing OpenAI, Claude, Gemini, and DeepSeek requests with unified billing and 40% standard pricing.'
+                'Access configured AI models through one API, with streaming support, usage tracking, and model-based pricing.'
               )}
             </p>
 
             <div className='mt-8 flex flex-wrap items-center justify-center gap-3.5'>
               <Button
                 size='lg'
-                className='group gap-2 rounded-xl px-6 text-sm font-semibold shadow-md transition-all hover:shadow-lg hover:shadow-primary/20'
+                className='group hover:shadow-primary/20 gap-2 rounded-xl px-6 text-sm font-semibold shadow-md transition-all hover:shadow-lg'
                 render={<Link to='/sign-up' />}
               >
                 <KeyRound className='size-4' />
-                {t('Get Started Free')}
+                {t('Get Started')}
                 <ArrowRight className='size-4 transition-transform group-hover:translate-x-1' />
               </Button>
               <Button
