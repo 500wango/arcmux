@@ -423,7 +423,7 @@ export function ChannelsTable() {
   ]
 
   return (
-    <div className='flex min-h-0 flex-col gap-3 sm:gap-4'>
+    <div className='flex h-full min-h-0 flex-col gap-3 sm:gap-4'>
       <div className='bg-card grid shrink-0 grid-cols-2 overflow-hidden rounded-xl border sm:grid-cols-4'>
         <div className='border-b p-3 sm:border-r sm:border-b-0 sm:p-4'>
           <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase'>
