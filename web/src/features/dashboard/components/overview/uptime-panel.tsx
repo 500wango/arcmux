@@ -43,6 +43,66 @@ const StatusDot = memo(function StatusDot(props: { status: number }) {
   return <span className={cn('inline-block size-2 rounded-full', color)} />
 })
 
+export function UptimeHistory(props: {
+  heartbeats: UptimeMonitor['heartbeats']
+}) {
+  const { t } = useTranslation()
+  const heartbeats = props.heartbeats?.slice(-60) ?? []
+  const statusLabels: Record<number, string> = {
+    0: t('Failed'),
+    1: t('Online'),
+    2: t('Pending'),
+    3: t('Maintenance'),
+  }
+
+  return (
+    <div className='w-full min-w-0 sm:max-w-lg'>
+      <div
+        role='group'
+        aria-label={t('Recent checks')}
+        className='flex gap-0.5 sm:gap-1'
+      >
+        {Array.from({ length: 60 - heartbeats.length }, (_, index) => (
+          <span
+            // Empty slots have no data or component state.
+            // eslint-disable-next-line react/no-array-index-key
+            key={`empty-${index}`}
+            aria-hidden='true'
+            title={t('No data')}
+            className='bg-muted-foreground/20 h-7 min-w-0 flex-1 rounded-sm'
+          />
+        ))}
+        {heartbeats.map((heartbeat) => {
+          const label = `${heartbeat.time} UTC · ${statusLabels[heartbeat.status] ?? t('Unknown')}`
+          return (
+            <span
+              key={heartbeat.time}
+              role='img'
+              aria-label={label}
+              title={label}
+              className={cn(
+                'h-7 min-w-0 flex-1 rounded-sm',
+                STATUS_COLOR_MAP[heartbeat.status] ?? DEFAULT_STATUS_COLOR
+              )}
+            />
+          )
+        })}
+      </div>
+      <div className='text-muted-foreground mt-1 flex justify-between gap-2 text-[10px] tabular-nums'>
+        <span>{t('Recent checks')}</span>
+        {heartbeats.length > 0 ? (
+          <span>
+            {heartbeats[0].time.slice(11, 19)}–
+            {heartbeats.at(-1)?.time.slice(11, 19)} UTC
+          </span>
+        ) : (
+          <span>{t('No data')}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function UptimePanel() {
   const { t } = useTranslation()
   const [groups, setGroups] = useState<UptimeGroupResult[]>([])
@@ -143,7 +203,7 @@ export function UptimePanel() {
                   <div
                     key={monitor.name}
                     className={cn(
-                      'hover:bg-muted/40 flex items-center justify-between gap-2 px-3 py-2 transition-colors sm:px-5 sm:py-2.5',
+                      'hover:bg-muted/40 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 px-3 py-3 transition-colors sm:px-5 sm:py-4',
                       monitorIdx < (group.monitors?.length || 0) - 1 &&
                         'border-border/40 border-b',
                       groupIdx < groups.length - 1 &&
@@ -151,7 +211,7 @@ export function UptimePanel() {
                         'border-border/60 border-b'
                     )}
                   >
-                    <div className='flex min-w-0 items-center gap-2.5'>
+                    <div className='flex min-w-0 flex-1 basis-48 items-center gap-2.5'>
                       <StatusDot status={monitor.status} />
                       <span className='truncate text-sm'>{monitor.name}</span>
                       {monitor.group && (
@@ -160,9 +220,14 @@ export function UptimePanel() {
                         </span>
                       )}
                     </div>
-                    <span className='text-foreground shrink-0 font-mono text-sm font-semibold tabular-nums'>
+                    <span
+                      title={t('24-hour uptime')}
+                      aria-label={`${t('24-hour uptime')}: ${((monitor.uptime ?? 0) * 100).toFixed(2)}%`}
+                      className='text-foreground shrink-0 font-mono text-sm font-semibold tabular-nums sm:order-last'
+                    >
                       {((monitor.uptime ?? 0) * 100).toFixed(2)}%
                     </span>
+                    <UptimeHistory heartbeats={monitor.heartbeats} />
                   </div>
                 )
               )}

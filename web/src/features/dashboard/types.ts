@@ -171,6 +171,7 @@ export interface UptimeMonitor {
   uptime: number
   status: number
   group?: string
+  heartbeats?: { status: number; time: string }[]
 }
 
 export interface UptimeGroupResult {

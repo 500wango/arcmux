@@ -2,13 +2,14 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/500wango/arcmux/common"
 	"github.com/500wango/arcmux/setting/console_setting"
 
 	"github.com/gin-gonic/gin"
@@ -23,11 +24,17 @@ const (
 	apiHeartbeatPath = "/api/status-page/heartbeat/"
 )
 
+type UptimeHeartbeat struct {
+	Status int    `json:"status"`
+	Time   string `json:"time"`
+}
+
 type Monitor struct {
-	Name   string  `json:"name"`
-	Uptime float64 `json:"uptime"`
-	Status int     `json:"status"`
-	Group  string  `json:"group,omitempty"`
+	Name       string            `json:"name"`
+	Uptime     float64           `json:"uptime"`
+	Status     int               `json:"status"`
+	Group      string            `json:"group,omitempty"`
+	Heartbeats []UptimeHeartbeat `json:"heartbeats"`
 }
 
 type UptimeGroupResult struct {
@@ -51,7 +58,7 @@ func getAndDecode(ctx context.Context, client *http.Client, url string, dest int
 		return errors.New("non-200 status")
 	}
 
-	return json.NewDecoder(resp.Body).Decode(dest)
+	return common.DecodeJson(resp.Body, dest)
 }
 
 func fetchGroupData(ctx context.Context, client *http.Client, groupConfig map[string]interface{}) UptimeGroupResult {
@@ -82,10 +89,8 @@ func fetchGroupData(ctx context.Context, client *http.Client, groupConfig map[st
 	}
 
 	var heartbeatData struct {
-		HeartbeatList map[string][]struct {
-			Status int `json:"status"`
-		} `json:"heartbeatList"`
-		UptimeList map[string]float64 `json:"uptimeList"`
+		HeartbeatList map[string][]UptimeHeartbeat `json:"heartbeatList"`
+		UptimeList    map[string]float64           `json:"uptimeList"`
 	}
 
 	g, gCtx := errgroup.WithContext(ctx)
@@ -107,8 +112,10 @@ func fetchGroupData(ctx context.Context, client *http.Client, groupConfig map[st
 
 		for _, m := range pg.MonitorList {
 			monitor := Monitor{
-				Name:  m.Name,
-				Group: pg.Name,
+				Name:       m.Name,
+				Group:      pg.Name,
+				Status:     -1,
+				Heartbeats: []UptimeHeartbeat{},
 			}
 
 			monitorID := strconv.Itoa(m.ID)
@@ -118,7 +125,15 @@ func fetchGroupData(ctx context.Context, client *http.Client, groupConfig map[st
 			}
 
 			if heartbeats, exists := heartbeatData.HeartbeatList[monitorID]; exists && len(heartbeats) > 0 {
-				monitor.Status = heartbeats[0].Status
+				// Kuma timestamps are UTC and use the same sortable format.
+				sort.SliceStable(heartbeats, func(i, j int) bool {
+					return heartbeats[i].Time < heartbeats[j].Time
+				})
+				if len(heartbeats) > 60 {
+					heartbeats = heartbeats[len(heartbeats)-60:]
+				}
+				monitor.Heartbeats = heartbeats
+				monitor.Status = heartbeats[len(heartbeats)-1].Status
 			}
 
 			result.Monitors = append(result.Monitors, monitor)
