@@ -26,6 +26,10 @@ func TestIsChannelUnavailableErrorRecognizesExhaustedUpstreamBalance(t *testing.
 				Code:    "insufficient_quota",
 			}, 400),
 		},
+		{
+			name: "account balance message on forbidden",
+			err:  types.NewOpenAIError(errors.New("Insufficient account balance"), types.ErrorCodeBadResponseStatusCode, 403),
+		},
 	}
 
 	for _, tc := range testCases {

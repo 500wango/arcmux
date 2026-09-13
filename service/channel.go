@@ -92,6 +92,7 @@ func IsChannelUnavailableMessage(message string, errorCode string) bool {
 	lowerMessage := strings.ToLower(message)
 	for _, fragment := range []string{
 		"credit balance is too low",
+		"insufficient account balance",
 		"insufficient quota",
 		"quota exceeded",
 		"out of credits",
