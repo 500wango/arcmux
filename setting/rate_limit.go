@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"sync"
+	"sync/atomic"
 
 	"github.com/500wango/arcmux/common"
 )
@@ -15,6 +16,9 @@ var ModelRequestRateLimitCount = 0
 var ModelRequestRateLimitSuccessCount = 1000
 var ModelRequestRateLimitGroup = map[string][2]int{}
 var ModelRequestRateLimitMutex sync.RWMutex
+
+// UserConcurrencyLimit is shared by all API keys of a user; zero disables it.
+var UserConcurrencyLimit atomic.Int64
 
 func ModelRequestRateLimitGroup2JSONString() string {
 	ModelRequestRateLimitMutex.RLock()

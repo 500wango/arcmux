@@ -140,6 +140,7 @@ func InitOptionMap() {
 	common.OptionMap["QuotaRemindThreshold"] = strconv.Itoa(common.QuotaRemindThreshold)
 	common.OptionMap["PreConsumedQuota"] = strconv.Itoa(common.PreConsumedQuota)
 	common.OptionMap["ModelRequestRateLimitCount"] = strconv.Itoa(setting.ModelRequestRateLimitCount)
+	common.OptionMap["UserConcurrencyLimit"] = strconv.FormatInt(setting.UserConcurrencyLimit.Load(), 10)
 	common.OptionMap["ModelRequestRateLimitDurationMinutes"] = strconv.Itoa(setting.ModelRequestRateLimitDurationMinutes)
 	common.OptionMap["ModelRequestRateLimitSuccessCount"] = strconv.Itoa(setting.ModelRequestRateLimitSuccessCount)
 	common.OptionMap["ModelRequestRateLimitGroup"] = setting.ModelRequestRateLimitGroup2JSONString()
@@ -213,6 +214,12 @@ func SyncOptions(frequency int) {
 }
 
 func validateOptionValue(key string, value string) error {
+	if key == "UserConcurrencyLimit" {
+		limit, err := strconv.ParseInt(value, 10, 32)
+		if err != nil || limit < 0 {
+			return fmt.Errorf("User concurrency limit must be an integer between 0 and 2147483647")
+		}
+	}
 	if key == "QuotaPerUnit" {
 		quotaPerUnit, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
 		if err != nil || quotaPerUnit <= 0 || quotaPerUnit > float64(common.MaxQuota) || math.IsNaN(quotaPerUnit) || math.IsInf(quotaPerUnit, 0) {
@@ -559,6 +566,12 @@ func updateOptionMap(key string, value string) (err error) {
 		common.PreConsumedQuota, _ = strconv.Atoi(value)
 	case "ModelRequestRateLimitCount":
 		setting.ModelRequestRateLimitCount, _ = strconv.Atoi(value)
+	case "UserConcurrencyLimit":
+		limit, parseErr := strconv.ParseInt(value, 10, 32)
+		if parseErr != nil || limit < 0 {
+			return fmt.Errorf("invalid user concurrency limit")
+		}
+		setting.UserConcurrencyLimit.Store(limit)
 	case "ModelRequestRateLimitDurationMinutes":
 		setting.ModelRequestRateLimitDurationMinutes, _ = strconv.Atoi(value)
 	case "ModelRequestRateLimitSuccessCount":

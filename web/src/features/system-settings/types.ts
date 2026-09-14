@@ -362,6 +362,7 @@ export type OperationsSettings = {
 }
 
 export type SecuritySettings = {
+  UserConcurrencyLimit: number
   ModelRequestRateLimitEnabled: boolean
   ModelRequestRateLimitCount: number
   ModelRequestRateLimitSuccessCount: number

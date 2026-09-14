@@ -66,6 +66,12 @@ const isValidJSON = (value: string | undefined) => {
 
 const createRateLimitSchema = (t: (key: string) => string) =>
   z.object({
+    UserConcurrencyLimit: z
+      .number({ error: t('Enter an integer between 0 and 2147483647') })
+      .refine(
+        (value) => Number.isInteger(value) && value >= 0 && value <= 2147483647,
+        { message: t('Enter an integer between 0 and 2147483647') }
+      ),
     ModelRequestRateLimitEnabled: z.boolean(),
     ModelRequestRateLimitDurationMinutes: z.number().min(0),
     ModelRequestRateLimitCount: z.number().min(0).max(100000000),
@@ -120,6 +126,33 @@ export function RateLimitSection({ defaultValues }: RateLimitSectionProps) {
             onSave={form.handleSubmit(onSubmit)}
             isSaving={updateOption.isPending}
             saveLabel='Save rate limits'
+          />
+          <FormField
+            control={form.control}
+            name='UserConcurrencyLimit'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('User concurrency limit')}</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    min={0}
+                    max={2147483647}
+                    step={1}
+                    className='max-w-xs'
+                    {...field}
+                    value={Number.isNaN(field.value) ? '' : field.value}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t(
+                    'Maximum active model requests per user, shared by all API keys. Streaming requests count until they end. 0 disables this limit, independently of rate limiting.'
+                  )}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
           />
           <FormField
             control={form.control}
