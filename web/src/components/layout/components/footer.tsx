@@ -15,8 +15,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 import { Link } from '@tanstack/react-router'
+import { Mail } from 'lucide-react'
 import { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SiTelegram } from 'react-icons/si'
 
 import { useSystemConfig } from '@/hooks/use-system-config'
 import { cn } from '@/lib/utils'
@@ -41,15 +43,18 @@ interface FooterProps {
 
 function FooterLinkItem(props: { link: FooterLink }) {
   const { t } = useTranslation()
-  const isExternal = props.link.href.startsWith('http')
-  const label = t(props.link.text)
+  const isMailto = props.link.href.startsWith('mailto:')
+  const isExternal = props.link.href.startsWith('http') || isMailto
+  const label = props.link.text.includes('@')
+    ? props.link.text
+    : t(props.link.text)
 
   if (isExternal) {
     return (
       <a
         href={props.link.href}
-        target='_blank'
-        rel='noopener noreferrer'
+        target={isMailto ? undefined : '_blank'}
+        rel={isMailto ? undefined : 'noopener noreferrer'}
         className='text-muted-foreground hover:text-foreground text-sm transition-colors duration-200'
       >
         {label}
@@ -105,6 +110,38 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
   )
 }
 
+function SupportContacts(props: { className?: string; iconSize?: string }) {
+  const iconClass = props.iconSize || 'size-3.5'
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap items-center gap-x-3 gap-y-1.5',
+        props.className
+      )}
+    >
+      <a
+        href='mailto:support@arcmux.com'
+        className='hover:text-foreground inline-flex items-center gap-1.5 transition-colors duration-200'
+      >
+        <Mail className={iconClass} />
+        <span>support@arcmux.com</span>
+      </a>
+      <span aria-hidden='true' className='text-muted-foreground/30'>
+        ·
+      </span>
+      <a
+        href='https://t.me/arcmux'
+        target='_blank'
+        rel='noopener noreferrer'
+        className='hover:text-foreground inline-flex items-center gap-1.5 transition-colors duration-200'
+      >
+        <SiTelegram className={iconClass} />
+        <span>Telegram</span>
+      </a>
+    </div>
+  )
+}
+
 export function Footer(props: FooterProps) {
   const { t } = useTranslation()
   const {
@@ -135,6 +172,14 @@ export function Footer(props: FooterProps) {
           {
             text: t('footer.columns.about.links.features'),
             href: 'https://github.com/500wango/arcmux#features',
+          },
+          {
+            text: 'support@arcmux.com',
+            href: 'mailto:support@arcmux.com',
+          },
+          {
+            text: 'Telegram',
+            href: 'https://t.me/arcmux',
           },
           {
             text: 'Terms & Conditions',
@@ -197,6 +242,10 @@ export function Footer(props: FooterProps) {
               dangerouslySetInnerHTML={{ __html: footerHtml }}
             />
             <div className='border-border/60 text-muted-foreground/45 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t pt-4 text-xs sm:w-auto sm:justify-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-5'>
+              <SupportContacts iconSize='size-3' />
+              <span aria-hidden='true' className='text-muted-foreground/30'>
+                ·
+              </span>
               <LegalLinks />
             </div>
           </div>
@@ -230,6 +279,26 @@ export function Footer(props: FooterProps) {
               <span className='size-1.5 animate-pulse rounded-full bg-emerald-500' />
               <span>ALL SYSTEMS OPERATIONAL</span>
             </div>
+
+            {/* Support contact info */}
+            <div className='mt-4 flex flex-col gap-2 font-mono text-xs text-muted-foreground/80'>
+              <a
+                href='mailto:support@arcmux.com'
+                className='hover:text-foreground inline-flex items-center gap-2 transition-colors duration-200'
+              >
+                <Mail className='text-muted-foreground/70 size-3.5' />
+                <span>support@arcmux.com</span>
+              </a>
+              <a
+                href='https://t.me/arcmux'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:text-foreground inline-flex items-center gap-2 transition-colors duration-200'
+              >
+                <SiTelegram className='text-muted-foreground/70 size-3.5' />
+                <span>Telegram: @arcmux</span>
+              </a>
+            </div>
           </div>
 
           {/* Links columns */}
@@ -253,14 +322,18 @@ export function Footer(props: FooterProps) {
           )}
         </div>
 
-        {/* Bottom bar: copyright + legal + project attribution */}
-        <div className='border-border/40 mt-10 flex flex-col items-center justify-between gap-x-3 gap-y-2 border-t pt-6 font-mono text-xs sm:flex-row'>
+        {/* Bottom bar: copyright + legal + support contact */}
+        <div className='border-border/40 mt-10 flex flex-col items-center justify-between gap-x-4 gap-y-2 border-t pt-6 font-mono text-xs sm:flex-row'>
           <div className='text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:justify-start'>
             <span>
               &copy; {currentYear} {displayName}.{' '}
               {props.copyright ?? t('footer.defaultCopyright')}
             </span>
             <LegalLinks leadingSeparator />
+          </div>
+
+          <div className='text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-end'>
+            <SupportContacts iconSize='size-3' />
           </div>
         </div>
       </div>
