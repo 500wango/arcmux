@@ -21,6 +21,7 @@ type WaffoPancakePriceSnapshot struct {
 // OrderMerchantExternalID = our trade_no; Pancake echoes it back in webhooks.
 type WaffoPancakeCreateSessionParams struct {
 	ProductID               string
+	Currency                string
 	BuyerIdentity           string
 	PriceSnapshot           *WaffoPancakePriceSnapshot
 	BuyerEmail              string
@@ -111,10 +112,15 @@ func CreateWaffoPancakeCheckoutSession(ctx context.Context, params *WaffoPancake
 		return nil, fmt.Errorf("build Waffo Pancake client: %w", err)
 	}
 
+	currency := strings.ToUpper(strings.TrimSpace(params.Currency))
+	if currency == "" {
+		currency = setting.GetWaffoPancakeCurrency()
+	}
+
 	sdkParams := pancake.AuthenticatedCheckoutParams{
 		CreateCheckoutSessionParams: pancake.CreateCheckoutSessionParams{
 			ProductID:               params.ProductID,
-			Currency:                "USD",
+			Currency:                currency,
 			BuyerEmail:              optionalString(params.BuyerEmail),
 			ExpiresInSeconds:        params.ExpiresInSeconds,
 			OrderMerchantExternalID: optionalString(params.OrderMerchantExternalID),
@@ -129,6 +135,22 @@ func CreateWaffoPancakeCheckoutSession(ctx context.Context, params *WaffoPancake
 	}
 
 	session, err := client.Checkout.Authenticated.Create(ctx, sdkParams)
+	if err != nil && strings.Contains(err.Error(), "is not supported for this product") {
+		fallbackCurrency := ""
+		if strings.EqualFold(currency, "USD") {
+			fallbackCurrency = "CNY"
+		} else if strings.EqualFold(currency, "CNY") {
+			fallbackCurrency = "USD"
+		}
+		if fallbackCurrency != "" {
+			retryParams := sdkParams
+			retryParams.Currency = fallbackCurrency
+			if retrySession, retryErr := client.Checkout.Authenticated.Create(ctx, retryParams); retryErr == nil && retrySession != nil {
+				session = retrySession
+				err = nil
+			}
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -334,6 +356,10 @@ func CreateWaffoPancakePrimaryProduct(ctx context.Context, merchantID, privateKe
 		Prices: pancake.Prices{
 			"USD": {
 				Amount:      "1.00", // overridden at checkout via PriceSnapshot
+				TaxCategory: pancake.TaxCategory("saas"),
+			},
+			"CNY": {
+				Amount:      "7.00", // overridden at checkout via PriceSnapshot
 				TaxCategory: pancake.TaxCategory("saas"),
 			},
 		},
