@@ -227,7 +227,7 @@ func ListWaffoPancakeCatalog(c *gin.Context) {
 		logger.LogError(c.Request.Context(), fmt.Sprintf(
 			"Waffo Pancake 拉取店铺与产品目录失败 error=%q", err.Error(),
 		))
-		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "拉取目录失败"})
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": fmt.Sprintf("拉取目录失败: %s", err.Error())})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "success", "data": catalog})
@@ -279,7 +279,7 @@ func CreateWaffoPancakeSubscriptionProduct(c *gin.Context) {
 			"Waffo Pancake 创建套餐产品失败 store_id=%q name=%q amount=%q error=%q",
 			storeID, req.Name, req.Amount, err.Error(),
 		))
-		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "创建套餐产品失败"})
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": fmt.Sprintf("创建套餐产品失败: %s", err.Error())})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
