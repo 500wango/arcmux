@@ -14,10 +14,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-export { TermsAndConditions } from './terms-and-conditions'
-export { UserAgreement } from './user-agreement'
-export { PrivacyPolicy } from './privacy-policy'
-export {
-  getDefaultTermsAndConditions,
-  getDefaultPrivacyPolicy,
-} from './defaults'
+import { createFileRoute } from '@tanstack/react-router'
+
+import { PrivacyPolicy } from '@/features/legal'
+
+export const Route = createFileRoute('/privacy')({
+  component: PrivacyPolicy,
+})

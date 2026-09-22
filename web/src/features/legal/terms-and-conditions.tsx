@@ -18,25 +18,25 @@ import { useTranslation } from 'react-i18next'
 
 import { useSystemConfig } from '@/hooks/use-system-config'
 
-import { getPrivacyPolicy } from './api'
-import { getDefaultPrivacyPolicy } from './defaults'
+import { getUserAgreement } from './api'
+import { getDefaultTermsAndConditions } from './defaults'
 import { LegalDocument } from './legal-document'
 
-export function PrivacyPolicy() {
+export function TermsAndConditions() {
   const { t, i18n } = useTranslation()
   const { systemName } = useSystemConfig()
   const displayName = systemName || 'ArcMux'
 
   return (
     <LegalDocument
-      title={t('Privacy Policy')}
-      subtitle={t('Platform Privacy Policy')}
+      title={t('Terms & Conditions')}
+      subtitle={t('Terms of Service and Acceptable Use Policy')}
       badge={t('Legal & Compliance')}
-      queryKey='privacy-policy'
-      fetchDocument={getPrivacyPolicy}
-      defaultContent={getDefaultPrivacyPolicy(displayName, i18n.language)}
+      queryKey='terms-and-conditions'
+      fetchDocument={getUserAgreement}
+      defaultContent={getDefaultTermsAndConditions(displayName, i18n.language)}
       emptyMessage={t(
-        'The administrator has not configured a privacy policy yet.'
+        'The administrator has not configured a user agreement yet.'
       )}
     />
   )

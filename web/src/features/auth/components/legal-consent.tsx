@@ -68,18 +68,18 @@ export function LegalConsent({
           {t('I have read and agree to the')}{' '}
           {hasUserAgreement && (
             <a
-              href='/user-agreement'
+              href='/terms'
               target='_blank'
               rel='noopener noreferrer'
               className='text-primary hover:underline'
             >
-              {t('User Agreement')}
+              {t('Terms & Conditions')}
             </a>
           )}
-          {hasUserAgreement && hasPrivacyPolicy && ' and the '}
+          {hasUserAgreement && hasPrivacyPolicy && ` ${t('and')} `}
           {hasPrivacyPolicy && (
             <a
-              href='/privacy-policy'
+              href='/privacy'
               target='_blank'
               rel='noopener noreferrer'
               className='text-primary hover:underline'
